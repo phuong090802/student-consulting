@@ -20,7 +20,7 @@ public class UserUtility {
     private static final String PHONE_REGEX = "^(0\\d{9})|(\\+84\\d{8})$";
     private final UserService userService;
 
-    public ErrorModel validationNewUser(UserPayload request) {
+    public ErrorModel validationNewUser(UserPayload request, boolean grant) {
         var fullName = request.getName().trim();
         if (fullName.isEmpty()) {
             return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên người dùng không thể để trống.");
@@ -42,7 +42,7 @@ public class UserUtility {
         }
 
         var occupation = request.getOccupation();
-        if (occupation.isEmpty()) {
+        if (!grant && occupation.isEmpty()) {
             return new ErrorModel(HttpStatus.BAD_REQUEST, "Nghề nghiệp không thể để trống.");
         }
 
@@ -76,7 +76,7 @@ public class UserUtility {
     }
 
     public ErrorModel validationGrantAccount(UserPayload request) {
-        var error = validationNewUser(request);
+        var error = validationNewUser(request, true);
         if (error != null) {
             return error;
         }

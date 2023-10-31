@@ -516,7 +516,6 @@ public class AdminController {
                 request.getPhone(),
                 passwordEncoder.encode(request.getPassword()),
                 true,
-                request.getOccupation(),
                 role);
         userService.save(user);
         return new ResponseEntity<>(

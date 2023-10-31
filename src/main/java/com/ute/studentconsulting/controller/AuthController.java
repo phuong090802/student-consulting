@@ -194,7 +194,7 @@ public class AuthController {
     }
 
     private ResponseEntity<?> handleRegister(UserPayload request) {
-        var error = userUtility.validationNewUser(request);
+        var error = userUtility.validationNewUser(request, false);
         if (error != null) {
             return new ResponseEntity<>(new MessageResponse(false, error.getMessage()), error.getStatus());
         }
@@ -205,8 +205,8 @@ public class AuthController {
                 request.getPhone(),
                 passwordEncoder.encode(request.getPassword()),
                 true,
-                request.getOccupation(),
                 role);
+        user.setOccupation(request.getOccupation());
         userService.save(user);
         return new ResponseEntity<>(
                 new MessageResponse(true, "Tạo tài khoản thành công."),

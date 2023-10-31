@@ -3,7 +3,8 @@ package com.ute.studentconsulting.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Getter
@@ -12,6 +13,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Entity
 @Table(name = "users")
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -45,7 +47,6 @@ public class User {
     @Column(name = "enabled")
     private Boolean enabled;
 
-    @NonNull
     @Column(name = "occupation")
     private String occupation;
 

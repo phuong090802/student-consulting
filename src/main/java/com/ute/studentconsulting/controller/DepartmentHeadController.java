@@ -254,8 +254,8 @@ public class DepartmentHeadController {
                 request.getPhone(),
                 passwordEncoder.encode(request.getPassword()),
                 true,
-                request.getOccupation(),
                 role);
+        user.setOccupation(request.getOccupation());
         user.setDepartment(department);
         userService.save(user);
         return ResponseEntity.ok(new MessageResponse(true, "Tạo tài khoản thành công."));
