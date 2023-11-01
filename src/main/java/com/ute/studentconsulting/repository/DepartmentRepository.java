@@ -1,7 +1,6 @@
 package com.ute.studentconsulting.repository;
 
 import com.ute.studentconsulting.entity.Department;
-import com.ute.studentconsulting.entity.Field;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface DepartmentRepository extends JpaRepository<Department, String> {
     Boolean existsByName(String name);
@@ -29,5 +29,7 @@ public interface DepartmentRepository extends JpaRepository<Department, String> 
 
     @NonNull
     List<Department> findAllByStatusIsTrue();
+
+    Optional<Department> findByIdAndStatusIsTrue(String id);
 
 }

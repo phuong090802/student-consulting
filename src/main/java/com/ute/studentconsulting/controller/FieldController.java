@@ -2,6 +2,7 @@ package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.exception.AppException;
+import com.ute.studentconsulting.service.DepartmentService;
 import com.ute.studentconsulting.utility.AuthUtility;
 import com.ute.studentconsulting.utility.SortUtility;
 import com.ute.studentconsulting.model.PaginationModel;
@@ -23,6 +24,25 @@ public class FieldController {
     private final FieldService fieldService;
     private final SortUtility sortUtility;
     private final AuthUtility authUtility;
+    private final DepartmentService departmentService;
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/departments/{id}")
+    public ResponseEntity<?> getFieldsByDepartmentId(@PathVariable("id") String id) {
+        try {
+            return handleGetFieldsByDepartmentId(id);
+        } catch (Exception e) {
+            log.error("Lỗi lấy lĩnh vực theo khoa: {}", e.getMessage());
+            throw new AppException("Lỗi lấy lĩnh vực theo khoa: " + e.getMessage());
+        }
+    }
+
+    private ResponseEntity<?> handleGetFieldsByDepartmentId(String id) {
+        var department = departmentService.findByIdAndStatusIsTrue(id);
+        var ids = department.getFields().stream().map(Field::getId).toList();
+        var fields = fieldService.findAllByIdIn(ids);
+        return ResponseEntity.ok(new ApiResponse<>(true, fields));
+    }
 
     @PreAuthorize("hasRole('COUNSELLOR') or hasRole('DEPARTMENT_HEAD')")
     @GetMapping("/my")
@@ -34,8 +54,8 @@ public class FieldController {
         try {
             return handleGetMyFields(value, page, size, sort);
         } catch (Exception e) {
-            log.error("Lỗi lấy các lĩnh vực của phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi lấy các lĩnh vực của phòng ban: " + e.getMessage());
+            log.error("Lỗi lấy các lĩnh vực của khoa: {}", e.getMessage());
+            throw new AppException("Lỗi lấy các lĩnh vực của khoa: " + e.getMessage());
         }
     }
 

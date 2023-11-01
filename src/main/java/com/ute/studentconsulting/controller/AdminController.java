@@ -4,6 +4,7 @@ import com.ute.studentconsulting.entity.*;
 import com.ute.studentconsulting.exception.AppException;
 import com.ute.studentconsulting.model.ErrorModel;
 import com.ute.studentconsulting.model.PaginationModel;
+import com.ute.studentconsulting.model.StaffModel;
 import com.ute.studentconsulting.model.UserModel;
 import com.ute.studentconsulting.payloads.DepartmentPayload;
 import com.ute.studentconsulting.payloads.FieldPayload;
@@ -27,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,75 +46,100 @@ public class AdminController {
     private final RoleService roleService;
     private final SortUtility sortUtility;
 
-    @GetMapping("/departments/no-department-head")
-    public ResponseEntity<?> getDepartmentNoDepartmentHead() {
+    @PatchMapping("/department-head/users/{userId}/departments/{departmentId}")
+    public ResponseEntity<?> updateDepartmentHeadOfDepartment(
+            @PathVariable("userId") String userId,
+            @PathVariable("departmentId") String departmentId) {
         try {
-            return handleGetDepartmentNoDepartmentHead();
+            return handleUpdateDepartmentHeadOfDepartment(userId, departmentId);
         } catch (Exception e) {
-            log.error("Lấy phòng ban chưa có trưởng phòng ban thất bại: {}", e.getMessage());
-            throw new AppException("Lấy phòng ban chưa có trưởng phòng ban thất bại: " + e.getMessage());
+            log.error("Lỗi thay đổi trưởng phòng ban: {}", e.getMessage());
+            throw new AppException("Lỗi thay đổi trưởng phòng ban: " + e.getMessage());
         }
     }
 
-    private ResponseEntity<?> handleGetDepartmentNoDepartmentHead() {
-        var ids = userService.findDistinctDepartmentIds();
-        var departments = ids.isEmpty() ? departmentService.findAllByStatusIsTrue() : departmentService.findAllByIdIsNotInAndStatusIsTrue(ids);
-        var response = departments.stream().map(department -> new DepartmentPayload(
-                department.getId(),
-                department.getName(),
-                department.getDescription(),
-                department.getStatus()
-        ));
+    private ResponseEntity<?> handleUpdateDepartmentHeadOfDepartment(String userId, String departmentId) {
+        var department = departmentService.findByIdAndStatusIsTrue(departmentId);
+        var roleDepartmentHead = roleService.findByName(RoleName.ROLE_DEPARTMENT_HEAD);
+        var oldDepartmentHead = userService.findByDepartmentAndRole(department, roleDepartmentHead);
+        var roleCounsellor = roleService.findByName(RoleName.ROLE_COUNSELLOR);
+        oldDepartmentHead.setRole(roleCounsellor);
+        userService.save(oldDepartmentHead);
+        var newDepartmentHead = userService.findByIdAndEnabledIsTrue(userId);
+        newDepartmentHead.setRole(roleDepartmentHead);
+        userService.save(newDepartmentHead);
+        return ResponseEntity.ok(new MessageResponse(true, "Đổi trưởng phòng ban thành công."));
+    }
+
+    @GetMapping("/users/departments/{id}")
+    public ResponseEntity<?> getUsersInDepartment(
+            @PathVariable("id") String id,
+            @RequestParam(required = false, name = "value") String value,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "3") int size,
+            @RequestParam(defaultValue = "name, asc", name = "sort") String[] sort) {
+        try {
+            return handleGetUsersInDepartment(id, value, page, size, sort);
+        } catch (Exception e) {
+            log.error("Lỗi lấy nhân viên trong phòng ban: {}", e.getMessage());
+            throw new AppException("Lỗi lấy nhân viên trong phòng ban: " + e.getMessage());
+        }
+    }
+
+    private ResponseEntity<?> handleGetUsersInDepartment(String id, String value, int page, int size, String[] sort) {
+        var department = departmentService.findByIdAndStatusIsTrue(id);
+        var roleDepartmentHead = roleService.findByName(RoleName.ROLE_DEPARTMENT_HEAD);
+        var departmentHead = userService.findByDepartmentAndRole(department, roleDepartmentHead);
+
+        var orders = sortUtility.sortOrders(sort);
+        var pageable = PageRequest.of(page, size, Sort.by(orders));
+        var userPage = (value == null) ?
+                userService.findAllByDepartmentIsAndIdIsNotAndEnabledIsTrue(pageable, department, departmentHead.getId())
+                : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue(
+                value, department, departmentHead.getId(), pageable
+        );
+        var staffs = userUtility.mapUserPageToStaffModels(userPage);
+        var items =
+                new PaginationModel<>(
+                        staffs,
+                        userPage.getNumber(),
+                        userPage.getTotalPages()
+                );
+        var response = new HashMap<>();
+        response.put("counsellor", items);
+        response.put("departmentHead",
+                new StaffModel(
+                        departmentHead.getId(),
+                        departmentHead.getName(),
+                        departmentHead.getEmail(),
+                        departmentHead.getAvatar()));
         return ResponseEntity.ok(new ApiResponse<>(true, response));
     }
 
-    @GetMapping("/users/department-is-null")
-    public ResponseEntity<?> getDepartmentHeadDepartmentIsNull() {
-        try {
-            return handleGetDepartmentHeadDepartmentIsNull();
-        } catch (Exception e) {
-            log.error("Lấy trưởng phòng ban chưa có phòng ban thất bại: {}", e.getMessage());
-            throw new AppException("Lấy trưởng phòng ban chưa có phòng ban thất bại: " + e.getMessage());
-        }
-    }
-
-
-    private ResponseEntity<?> handleGetDepartmentHeadDepartmentIsNull() {
-        var admin = roleService.findByName(RoleName.ROLE_ADMIN);
-        var departmentHead = roleService.findByName(RoleName.ROLE_DEPARTMENT_HEAD);
-        var users = userService.findAllByDepartmentIsNullAndRoleIsNotAndRoleIsAndEnabledIsTrue(admin, departmentHead).stream().map(user -> new UserModel(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPhone(),
-                user.getAvatar(),
-                user.getEnabled(),
-                user.getOccupation(),
-                user.getRole().getName().name()));
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, users));
-    }
 
     @PatchMapping("/users/{userId}/departments/{departmentId}")
-    public ResponseEntity<?> patchUserToDepartment
-            (@PathVariable("userId") String userId, @PathVariable("departmentId") String departmentId) {
+    public ResponseEntity<?> addUserToDepartment(
+            @PathVariable("userId") String userId,
+            @PathVariable("departmentId") String departmentId) {
         try {
-            return handlePatchUserToDepartment(userId, departmentId);
+            return handleAddUserToDepartment(userId, departmentId);
         } catch (Exception e) {
-            log.error("Lỗi thêm trưởng phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi trưởng phòng ban: " + e.getMessage());
+            log.error("Lỗi thêm tư vấn viên vào phòng ban: {}", e.getMessage());
+            throw new AppException("Lỗi thêm tư vấn viên vào phòng ban: " + e.getMessage());
         }
     }
 
-    private ResponseEntity<?> handlePatchUserToDepartment(String userId, String departmentId) {
+    private ResponseEntity<?> handleAddUserToDepartment(String userId, String departmentId) {
+        var department = departmentService.findByIdAndStatusIsTrue(departmentId);
         var user = userService.findById(userId);
-        if (user.getDepartment() != null) {
-            return ResponseEntity.ok(new MessageResponse(false, "Trưởng phòng ban đã có phòng ban."));
+        if (user.getRole().getName().equals(RoleName.ROLE_COUNSELLOR)) {
+            user.setDepartment(department);
+            userService.save(user);
+            return ResponseEntity.ok(new MessageResponse(true, "Thêm tư vấn viên vào phòng ban thành công."));
         }
-        var department = departmentService.findById(departmentId);
-        user.setDepartment(department);
-        return ResponseEntity.ok(new MessageResponse(true, "Thêm trưởng phòng ban thành công."));
+        return ResponseEntity.ok(new MessageResponse(false, "Người được thêm vào phòng ban không phải là tư vấn viên."));
     }
+
 
     @PatchMapping("/users/{id}")
     public ResponseEntity<?> patchAccessibilityUser(@PathVariable("id") String id) {
@@ -144,44 +171,6 @@ public class AdminController {
         }
     }
 
-    @PatchMapping("/users/roles/{id}")
-    public ResponseEntity<?> patchRoleUser(@PathVariable("id") String id, @RequestBody Map<String, String> roleMap) {
-        try {
-            return handlePatchRoleUser(id, roleMap);
-        } catch (Exception e) {
-            log.error("Thay đổi quyền truy cập nười dùng thất bại: {}", e.getMessage());
-            throw new AppException("Thay đổi quyền truy cập nười dùng thất bại:" + e.getMessage());
-        }
-    }
-
-    private ResponseEntity<?> handlePatchRoleUser(String id, Map<String, String> roleMap) {
-        var roleValue = roleMap.get("role");
-
-        var validRoles = List.of("supervisor", "departmentHead", "counsellor", "user");
-        var roleNameMap = Map.of
-                ("supervisor", RoleName.ROLE_SUPERVISOR,
-                        "departmentHead", RoleName.ROLE_DEPARTMENT_HEAD,
-                        "counsellor", RoleName.ROLE_COUNSELLOR,
-                        "user", RoleName.ROLE_USER);
-
-        if (!validRoles.contains(roleValue)) {
-            return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ.", roleValue)), HttpStatus.BAD_REQUEST);
-        }
-
-        var role = roleService.findByName(roleNameMap.get(roleValue));
-        if (role == null) {
-            return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ.", roleValue)), HttpStatus.BAD_REQUEST);
-        }
-
-        var user = userService.findById(id);
-        if (user.getDepartment() != null &&
-                (!roleValue.equals("departmentHead") && !roleValue.equals("counsellor"))) {
-            user.setDepartment(null);
-        }
-        user.setRole(role);
-        userService.save(user);
-        return ResponseEntity.ok(new MessageResponse(true, "Thay đổi quyền truy cập người dùng thành công."));
-    }
 
     private ResponseEntity<?> handleGetUser(String id) {
         var admin = roleService.findByName(RoleName.ROLE_ADMIN);
@@ -497,8 +486,8 @@ public class AdminController {
             return new ResponseEntity<>(new MessageResponse(false, error.getMessage()), error.getStatus());
         }
 
-        var validRoles = List.of("supervisor", "departmentHead");
-        var roleNameMap = Map.of("supervisor", RoleName.ROLE_SUPERVISOR, "departmentHead", RoleName.ROLE_DEPARTMENT_HEAD);
+        var validRoles = List.of("counsellor", "supervisor");
+        var roleNameMap = Map.of("counsellor", RoleName.ROLE_COUNSELLOR, "supervisor", RoleName.ROLE_SUPERVISOR);
 
         if (!validRoles.contains(request.getRole())) {
             return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ.", request.getRole())), HttpStatus.BAD_REQUEST);
@@ -594,8 +583,8 @@ public class AdminController {
         try {
             return handleCreateDepartment(request);
         } catch (Exception e) {
-            log.error("Lỗi tạo phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi tạo phòng ban: " + e.getMessage());
+            log.error("Lỗi tạo khoa: {}", e.getMessage());
+            throw new AppException("Lỗi tạo khoa: " + e.getMessage());
         }
     }
 
@@ -605,8 +594,8 @@ public class AdminController {
         try {
             return handleUpdateDepartment(id, request);
         } catch (Exception e) {
-            log.error("Lỗi cập nhật phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi cập nhật phòng ban: " + e.getMessage());
+            log.error("Lỗi cập nhật khoa: {}", e.getMessage());
+            throw new AppException("Lỗi cập nhật khoa: " + e.getMessage());
         }
     }
 
@@ -615,8 +604,8 @@ public class AdminController {
         try {
             return handlePatchStatusDepartment(id);
         } catch (Exception e) {
-            log.error("Lỗi cập nhật trạng thái phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi cập nhật trạng thái phòng ban: " + e.getMessage());
+            log.error("Lỗi cập nhật trạng thái khoa: {}", e.getMessage());
+            throw new AppException("Lỗi cập nhật trạng thái khoa: " + e.getMessage());
         }
     }
 
@@ -642,7 +631,7 @@ public class AdminController {
 
         departmentService.save(department);
         return new ResponseEntity<>(
-                new MessageResponse(true, "Cập nhật phòng ban thành công."),
+                new MessageResponse(true, "Cập nhật khoa thành công."),
                 HttpStatus.OK);
     }
 
@@ -655,19 +644,20 @@ public class AdminController {
                 request.getName(),
                 request.getDescription()
         );
+        department.setStatus(request.getStatus());
         departmentService.save(department);
         return new ResponseEntity<>(
-                new MessageResponse(true, "Thêm phòng ban thành công."),
+                new MessageResponse(true, "Thêm khoa thành công."),
                 HttpStatus.CREATED);
     }
 
     private ErrorModel validationCreateDepartment(DepartmentPayload request) {
         var name = request.getName().trim();
         if (name.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên phòng ban không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên khoa không thể để trống.");
         }
         if (departmentService.existsByName(name)) {
-            return new ErrorModel(HttpStatus.CONFLICT, "Phòng ban đã tồn tại.");
+            return new ErrorModel(HttpStatus.CONFLICT, "khoa đã tồn tại.");
         }
         return null;
     }
@@ -675,9 +665,9 @@ public class AdminController {
     public ErrorModel validationUpdateDepartment(String id, DepartmentPayload request) {
         String name = request.getName().trim();
         if (name.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên phòng ban không để thể trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên khoa không để thể trống.");
         } else if (departmentService.existsByNameAndIdIsNot(name, id)) {
-            return new ErrorModel(HttpStatus.CONFLICT, "Phòng ban đã tồn tại.");
+            return new ErrorModel(HttpStatus.CONFLICT, "khoa đã tồn tại.");
         }
         return null;
     }

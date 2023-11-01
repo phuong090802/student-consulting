@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -136,16 +134,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllByDepartmentIsNullAndRoleIsNotAndRoleIsAndEnabledIsTrue(Role admin, Role departmentHead) {
-        return userRepository.findAllByDepartmentIsNullAndRoleIsNotAndRoleIsAndEnabledIsTrue(admin, departmentHead);
-    }
-
-    @Override
-    public List<String> findDistinctDepartmentIds() {
-        return userRepository.findDistinctDepartmentIds();
-    }
-
-    @Override
     public Page<User> findAllByDepartmentIsAndIdIsNot(Pageable pageable, Department department, String id) {
         return userRepository
                 .findAllByDepartmentIsAndIdIsNot(pageable, department, id);
@@ -170,6 +158,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByIdAndDepartmentIs(String id, Department department) {
         return userRepository.findByIdAndDepartmentIs(id, department)
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng."));
+    }
+
+    @Override
+    public User findByDepartmentAndRole(Department department, Role role) {
+        return userRepository.findByDepartmentAndRole(department, role)
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng."));
+    }
+
+    @Override
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue
+            (String value, Department department, String id, Pageable pageable) {
+        return userRepository
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue
+                        (value, department, id, pageable);
+    }
+
+    @Override
+    public User findByIdAndEnabledIsTrue(String id) {
+        return userRepository.findByIdAndEnabledIsTrue(id)
                 .orElseThrow(() -> new UserException("Không tìm thấy người dùng."));
     }
 

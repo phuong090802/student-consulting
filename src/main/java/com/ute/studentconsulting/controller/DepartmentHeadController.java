@@ -51,8 +51,8 @@ public class DepartmentHeadController {
         try {
             return handleAddFieldsToUser(userId, fieldIds);
         } catch (Exception e) {
-            log.error("Thêm trưởng phòng ban thất bại: {}", e.getMessage());
-            throw new AppException("Thêm trưởng phòng ban thất bại: " + e.getMessage());
+            log.error("Thêm trưởng khoa thất bại: {}", e.getMessage());
+            throw new AppException("Thêm trưởng khoa thất bại: " + e.getMessage());
         }
     }
 
@@ -75,7 +75,7 @@ public class DepartmentHeadController {
             department.setFields(fieldSet);
             departmentService.save(department);
         } else {
-            throw new AppException("Thực hiện thêm lĩnh vực cho phòng ban/tư vấn viên lỗi. Đối tượng truyền vào không phải là một thể hiện của Department/User");
+            throw new AppException("Thực hiện thêm lĩnh vực cho khoa/tư vấn viên lỗi. Đối tượng truyền vào không phải là một thể hiện của Department/User");
         }
         return new ResponseEntity<>(new MessageResponse(true, "Thêm lĩnh vực thành công."), HttpStatus.OK);
     }
@@ -169,8 +169,8 @@ public class DepartmentHeadController {
         try {
             return handleDeleteField(id);
         } catch (Exception e) {
-            log.error("Lỗi xóa lĩnh vực khổi phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi xóa lĩnh vực khổi phòng ban: " + e.getMessage());
+            log.error("Lỗi xóa lĩnh vực khổi khoa: {}", e.getMessage());
+            throw new AppException("Lỗi xóa lĩnh vực khổi khoa: " + e.getMessage());
         }
     }
 
@@ -216,8 +216,8 @@ public class DepartmentHeadController {
         try {
             return handleAddNewFieldToMyDepartment(fieldIds);
         } catch (Exception e) {
-            log.error("Lỗi thêm vĩnh vực vào phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi thêm vĩnh vực vào phòng ban: " + e.getMessage());
+            log.error("Lỗi thêm vĩnh vực vào khoa: {}", e.getMessage());
+            throw new AppException("Lỗi thêm vĩnh vực vào khoa: " + e.getMessage());
         }
     }
 
@@ -271,8 +271,8 @@ public class DepartmentHeadController {
         try {
             return handleGetUsersInDepartment(value, page, size, sort, status);
         } catch (Exception e) {
-            log.error("Lỗi lọc, phân trang người dùng trong phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi lọc, phân trang người dùng trong phòng ban: " + e.getMessage());
+            log.error("Lỗi lọc, phân trang người dùng trong khoa: {}", e.getMessage());
+            throw new AppException("Lỗi lọc, phân trang người dùng trong khoa: " + e.getMessage());
         }
     }
 

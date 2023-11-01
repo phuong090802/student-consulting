@@ -72,4 +72,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "field_id"))
     private Set<Field> fields = new HashSet<>();
 
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL)
+    private Set<Question> Questions;
+
 }

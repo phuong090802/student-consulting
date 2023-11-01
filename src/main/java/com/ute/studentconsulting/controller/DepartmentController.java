@@ -24,14 +24,36 @@ public class DepartmentController {
     private final SortUtility sortUtility;
     private final AuthUtility authUtility;
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllDepartment() {
+        try {
+            return handleGetAllDepartment();
+        } catch (Exception e) {
+            log.error("Lỗi lấy danh sách khoa: {}", e.getMessage());
+            throw new AppException("Lỗi lấy danh sách khoa: " + e.getMessage());
+        }
+    }
+
+    private ResponseEntity<?> handleGetAllDepartment() {
+        var departments = departmentService.findAllByStatusIsTrue();
+        var response = departments.stream().map(department -> new DepartmentPayload(
+                department.getId(),
+                department.getName(),
+                department.getDescription(),
+                department.getStatus()
+        ));
+        return ResponseEntity.ok(new ApiResponse<>(true, response));
+    }
+
     @PreAuthorize("hasRole('COUNSELLOR') or hasRole('DEPARTMENT_HEAD')")
     @GetMapping("/my")
     public ResponseEntity<?> getMyDepartment() {
         try {
             return handleGetMyDepartment();
         } catch (Exception e) {
-            log.error("Lỗi lấy phòng ban hiện tại: {}", e.getMessage());
-            throw new AppException("Lỗi lấy phòng ban hiện tại: " + e.getMessage());
+            log.error("Lỗi lấy khoa hiện tại: {}", e.getMessage());
+            throw new AppException("Lỗi lấy khoa hiện tại: " + e.getMessage());
         }
     }
 
@@ -40,8 +62,8 @@ public class DepartmentController {
         try {
             return handleGetDepartment(id);
         } catch (Exception e) {
-            log.error("Lỗi tìm kiếm phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi tìm kiếm phòng ban: " + e.getMessage());
+            log.error("Lỗi tìm kiếm khoa: {}", e.getMessage());
+            throw new AppException("Lỗi tìm kiếm khoa: " + e.getMessage());
         }
     }
 
@@ -55,8 +77,8 @@ public class DepartmentController {
         try {
             return handleGetDepartments(value, page, size, sort, status);
         } catch (Exception e) {
-            log.error("Lỗi lọc, phân trang phòng ban: {}", e.getMessage());
-            throw new AppException("Lỗi lọc, phân trang phòng ban: " + e.getMessage());
+            log.error("Lỗi lọc, phân trang khoa: {}", e.getMessage());
+            throw new AppException("Lỗi lọc, phân trang khoa: " + e.getMessage());
         }
     }
 

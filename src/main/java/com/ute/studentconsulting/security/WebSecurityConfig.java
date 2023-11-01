@@ -91,6 +91,7 @@ public class WebSecurityConfig {
                         auth
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/api/department-head/**").hasRole("DEPARTMENT_HEAD")
+                                .requestMatchers("/api/users/**").hasRole("USER")
                                 .anyRequest().permitAll()
                 )
                 .authenticationProvider(authenticationProvider())

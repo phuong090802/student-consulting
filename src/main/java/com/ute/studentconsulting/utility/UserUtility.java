@@ -2,6 +2,7 @@ package com.ute.studentconsulting.utility;
 
 import com.ute.studentconsulting.entity.User;
 import com.ute.studentconsulting.model.ErrorModel;
+import com.ute.studentconsulting.model.StaffModel;
 import com.ute.studentconsulting.model.UserModel;
 import com.ute.studentconsulting.payloads.UserPayload;
 import com.ute.studentconsulting.service.UserService;
@@ -97,6 +98,16 @@ public class UserUtility {
                         user.getEnabled(),
                         user.getOccupation(),
                         user.getRole().getName().name())
+        ).toList();
+    }
+
+    public List<StaffModel> mapUserPageToStaffModels(Page<User> userPage) {
+        return userPage.getContent().stream().map(user ->
+                new StaffModel(
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail(),
+                        user.getAvatar())
         ).toList();
     }
 }

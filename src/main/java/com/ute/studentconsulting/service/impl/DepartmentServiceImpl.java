@@ -69,8 +69,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public List<Department> findAllByIdIsNotInAndStatusIsTrue(Collection<String> ids) {
-        return departmentRepository.findAllByIdIsNotInAndStatusIsTrue(ids);
+    public Department findByIdAndStatusIsTrue(String id) {
+        return departmentRepository.findByIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new DepartmentException("Không tìm thấy khoa."));
     }
 
     @Override

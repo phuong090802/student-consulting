@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface UserService {
     void save(User user);
@@ -114,10 +113,6 @@ public interface UserService {
 
     User findByIdAndRoleIsNot(String id, Role admin);
 
-    List<User> findAllByDepartmentIsNullAndRoleIsNotAndRoleIsAndEnabledIsTrue(Role admin, Role departmentHead);
-
-    List<String> findDistinctDepartmentIds();
-
     Page<User> findAllByDepartmentIsAndIdIsNot(Pageable pageable, Department department, String id);
 
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNot
@@ -135,5 +130,10 @@ public interface UserService {
 
     User findByIdAndDepartmentIs(String id, Department department);
 
+    User findByDepartmentAndRole(Department department, Role role);
 
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue
+            (String value, Department department, String id, Pageable pageable);
+
+    User findByIdAndEnabledIsTrue(String id);
 }
