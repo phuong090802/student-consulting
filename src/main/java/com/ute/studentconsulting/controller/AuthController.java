@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ute.studentconsulting.entity.RoleName;
 import com.ute.studentconsulting.entity.User;
-import com.ute.studentconsulting.exception.AppException;
 import com.ute.studentconsulting.model.AuthModel;
 import com.ute.studentconsulting.model.TokenModel;
 import com.ute.studentconsulting.payloads.UserPayload;
@@ -58,7 +57,9 @@ public class AuthController {
             return handleRegister(request);
         } catch (Exception e) {
             log.error("Lỗi đăng ký tài khoản: {}", e.getMessage());
-            throw new AppException("Lỗi đăng ký tài khoản: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi đăng ký tài khoản.")
+                    , HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -68,7 +69,9 @@ public class AuthController {
             return handleLogin(request);
         } catch (Exception e) {
             log.error("Lỗi đăng nhập: {}", e.getMessage());
-            throw new AppException("Lỗi đăng nhập: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi đăng nhập."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -78,7 +81,9 @@ public class AuthController {
             return handleRefreshToken(request);
         } catch (Exception e) {
             log.error("Lỗi làm mới token: {}", e.getMessage());
-            throw new AppException("Lỗi làm mới token: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi làm mới token."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -88,7 +93,9 @@ public class AuthController {
             return handleLogout(request);
         } catch (Exception e) {
             log.error("Lỗi đăng xuất: {}", e.getMessage());
-            throw new AppException("Lỗi đăng xuất: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi đăng xuất."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

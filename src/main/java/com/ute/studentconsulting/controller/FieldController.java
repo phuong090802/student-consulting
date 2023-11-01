@@ -1,7 +1,7 @@
 package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Field;
-import com.ute.studentconsulting.exception.AppException;
+import com.ute.studentconsulting.payloads.response.MessageResponse;
 import com.ute.studentconsulting.service.DepartmentService;
 import com.ute.studentconsulting.utility.AuthUtility;
 import com.ute.studentconsulting.utility.SortUtility;
@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,9 @@ public class FieldController {
             return handleGetFieldsByDepartmentId(id);
         } catch (Exception e) {
             log.error("Lỗi lấy lĩnh vực theo khoa: {}", e.getMessage());
-            throw new AppException("Lỗi lấy lĩnh vực theo khoa: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lấy lĩnh vực theo khoa."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -55,7 +58,9 @@ public class FieldController {
             return handleGetMyFields(value, page, size, sort);
         } catch (Exception e) {
             log.error("Lỗi lấy các lĩnh vực của khoa: {}", e.getMessage());
-            throw new AppException("Lỗi lấy các lĩnh vực của khoa: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lấy các lĩnh vực của khoa."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -84,7 +89,9 @@ public class FieldController {
             return handleGetField(id);
         } catch (Exception e) {
             log.error("Lỗi tìm kiếm lĩnh vực: {}", e.getMessage());
-            throw new AppException("Lỗi tìm kiếm lĩnh vực: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi tìm kiếm lĩnh vực."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -103,7 +110,9 @@ public class FieldController {
             return handleGetFields(value, page, size, sort);
         } catch (Exception e) {
             log.error("Lỗi lọc, phân trang lĩnh vực: {}", e.getMessage());
-            throw new AppException("Lỗi lọc, phân trang lĩnh vực: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lọc, phân trang lĩnh vực."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

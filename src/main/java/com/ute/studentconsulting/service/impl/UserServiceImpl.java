@@ -182,6 +182,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIsTrue(Pageable pageable, Role role) {
+        return userRepository
+                .findAllByRoleIsAndDepartmentIsNullAndEnabledIsTrue(pageable, role);
+    }
+
+    @Override
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIsTrue
+            (String value, Role role, Pageable pageable) {
+        return userRepository
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIsTrue
+                        (value, role, pageable);
+    }
+
+    @Override
     public Page<User> findAllByDepartmentIsAndIdIsNotAndEnabledIsFalse
             (Pageable pageable, Department department, String id) {
         return userRepository

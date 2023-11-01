@@ -1,7 +1,6 @@
 package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Question;
-import com.ute.studentconsulting.exception.AppException;
 import com.ute.studentconsulting.model.ErrorModel;
 import com.ute.studentconsulting.payloads.QuestionPayload;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
@@ -36,7 +35,9 @@ public class UserController {
             return handleCreateQuestion(request);
         } catch (Exception e) {
             log.error("Lỗi đặt câu hỏi: {}", e.getMessage());
-            throw new AppException("Lỗi đặt câu hỏi: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi đặt câu hỏi."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

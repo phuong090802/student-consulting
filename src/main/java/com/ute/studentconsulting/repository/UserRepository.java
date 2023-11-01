@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, String> {
@@ -172,11 +171,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByIdAndRoleIsNot(String id, Role admin);
 
-    List<User> findAllByDepartmentIsNullAndRoleIsNotAndRoleIsAndEnabledIsTrue(Role admin, Role departmentHead);
-
-    @Query("SELECT DISTINCT u.department.id FROM User u WHERE u.department IS NOT NULL")
-    List<String> findDistinctDepartmentIds();
-
     Page<User> findAllByDepartmentIsAndIdIsNot(Pageable pageable, Department department, String id);
 
     @Query("SELECT u FROM User u " +
@@ -208,4 +202,11 @@ public interface UserRepository extends JpaRepository<User, String> {
             (@Param("value") String value, @Param("department") Department department, @Param("id") String id, Pageable pageable);
 
     Optional<User> findByIdAndEnabledIsTrue(String id);
+    Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIsTrue(Pageable pageable, Role role);
+    @Query("SELECT u FROM User u " +
+            "WHERE (LOWER(u.name) LIKE %:value% OR LOWER(u.email) LIKE %:value%) " +
+            "AND u.role = :role AND u.enabled = true  ")
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIsTrue
+            (@Param("value") String value, @Param("role") Role role, Pageable pageable);
+
 }

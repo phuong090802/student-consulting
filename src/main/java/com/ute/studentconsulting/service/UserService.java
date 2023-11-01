@@ -136,4 +136,9 @@ public interface UserService {
             (String value, Department department, String id, Pageable pageable);
 
     User findByIdAndEnabledIsTrue(String id);
+
+    Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIsTrue(Pageable pageable, Role role);
+
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIsTrue
+            (String value, Role role, Pageable pageable);
 }

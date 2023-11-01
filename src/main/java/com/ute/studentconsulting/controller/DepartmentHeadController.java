@@ -4,7 +4,6 @@ import com.ute.studentconsulting.entity.Department;
 import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.entity.RoleName;
 import com.ute.studentconsulting.entity.User;
-import com.ute.studentconsulting.exception.AppException;
 import com.ute.studentconsulting.model.CounsellorModel;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.payloads.UserPayload;
@@ -51,8 +50,10 @@ public class DepartmentHeadController {
         try {
             return handleAddFieldsToUser(userId, fieldIds);
         } catch (Exception e) {
-            log.error("Thêm trưởng khoa thất bại: {}", e.getMessage());
-            throw new AppException("Thêm trưởng khoa thất bại: " + e.getMessage());
+            log.error("Lỗi thêm trưởng khoa: {}", e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi thêm trưởng khoa."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -75,7 +76,10 @@ public class DepartmentHeadController {
             department.setFields(fieldSet);
             departmentService.save(department);
         } else {
-            throw new AppException("Thực hiện thêm lĩnh vực cho khoa/tư vấn viên lỗi. Đối tượng truyền vào không phải là một thể hiện của Department/User");
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi thêm lĩnh vực cho khoa/tư vấn viên. " +
+                            "Đối tượng truyền vào không phải là một thể hiện của Department/User."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(new MessageResponse(true, "Thêm lĩnh vực thành công."), HttpStatus.OK);
     }
@@ -86,7 +90,9 @@ public class DepartmentHeadController {
             return handleGetFieldsNoneUser(id);
         } catch (Exception e) {
             log.error("Lỗi lấy vực chưa tồn tại của nhân viên: {}", e.getMessage());
-            throw new AppException("Lỗi lấy vực chưa tồn tại của nhân viên: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lấy vực chưa tồn tại của nhân viên."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -95,8 +101,10 @@ public class DepartmentHeadController {
         try {
             return handleGetFieldsNoneDepartment();
         } catch (Exception e) {
-            log.error("Lỗi lấy vực chưa tồn tại của nhân viên: {}", e.getMessage());
-            throw new AppException("Lỗi lấy vực chưa tồn tại của nhân viên: " + e.getMessage());
+            log.error("Lỗi lấy vực chưa tồn tại của phòng ban: {}", e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lấy vực chưa tồn tại của phòng ban."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -125,8 +133,10 @@ public class DepartmentHeadController {
         try {
             return handleGetCounsellorInMyDepartment(id);
         } catch (Exception e) {
-            log.error("Lõi xem thông tin nhân viên: {}", e.getMessage());
-            throw new AppException("Lõi xem thông tin nhân viên: " + e.getMessage());
+            log.error("Lỗi xem thông tin nhân viên: {}", e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi xem thông tin nhân viên."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -152,7 +162,9 @@ public class DepartmentHeadController {
             return handleGetFieldsInMyDepartment();
         } catch (Exception e) {
             log.error("Lỗi lấy lĩnh vực: {}", e.getMessage());
-            throw new AppException("Lỗi lấy lĩnh vực: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lấy lĩnh vực."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -170,7 +182,9 @@ public class DepartmentHeadController {
             return handleDeleteField(id);
         } catch (Exception e) {
             log.error("Lỗi xóa lĩnh vực khổi khoa: {}", e.getMessage());
-            throw new AppException("Lỗi xóa lĩnh vực khổi khoa: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi xóa lĩnh vực khổi khoa."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -191,7 +205,9 @@ public class DepartmentHeadController {
             return handlePatchAccessibilityUser(id);
         } catch (Exception e) {
             log.error("Lỗi khóa/mở khóa tài khoản: {}", e.getMessage());
-            throw new AppException("Lỗi khóa/mở khóa tài khoản: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi khóa/mở khóa tài khoản."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -217,7 +233,9 @@ public class DepartmentHeadController {
             return handleAddNewFieldToMyDepartment(fieldIds);
         } catch (Exception e) {
             log.error("Lỗi thêm vĩnh vực vào khoa: {}", e.getMessage());
-            throw new AppException("Lỗi thêm vĩnh vực vào khoa: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi thêm vĩnh vực vào khoa."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -232,7 +250,9 @@ public class DepartmentHeadController {
             return handleCreateUser(request);
         } catch (Exception e) {
             log.error("Lỗi thêm người dùng: {}", e.getMessage());
-            throw new AppException("Lỗi thêm người dùng: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi thêm người dùng."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -272,7 +292,9 @@ public class DepartmentHeadController {
             return handleGetUsersInDepartment(value, page, size, sort, status);
         } catch (Exception e) {
             log.error("Lỗi lọc, phân trang người dùng trong khoa: {}", e.getMessage());
-            throw new AppException("Lỗi lọc, phân trang người dùng trong khoa: " + e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lọc, phân trang người dùng trong khoa."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
