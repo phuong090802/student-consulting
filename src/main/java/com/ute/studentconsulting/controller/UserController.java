@@ -36,7 +36,7 @@ public class UserController {
         } catch (Exception e) {
             log.error("Lỗi đặt câu hỏi: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi đặt câu hỏi."),
+                    new MessageResponse(false, "Lỗi đặt câu hỏi"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -61,28 +61,28 @@ public class UserController {
                 field);
         questionService.save(question);
         return ResponseEntity.ok(
-                new MessageResponse(true, "Đặt câu hỏi thành công."));
+                new MessageResponse(true, "Đặt câu hỏi thành công"));
     }
 
     private ErrorModel validationQuestion(QuestionPayload request) {
         var title = request.getTitle().trim();
         if (title.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tiêu đề không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tiêu đề không thể để trống");
         }
 
         var content = request.getContent().trim();
         if (content.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Nội dung không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Nội dung không thể để trống");
         }
 
         var departmentId = request.getDepartmentId().trim();
         if (departmentId.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Khoa không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Khoa không thể để trống");
         }
 
         var fieldId = request.getFieldId().trim();
         if (fieldId.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Lĩnh vực không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Lĩnh vực không thể để trống");
         }
         return null;
     }

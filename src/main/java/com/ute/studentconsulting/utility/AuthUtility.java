@@ -1,6 +1,7 @@
 package com.ute.studentconsulting.utility;
 
 import com.ute.studentconsulting.entity.User;
+import com.ute.studentconsulting.exception.AppException;
 import com.ute.studentconsulting.security.service.impl.UserDetailsImpl;
 import com.ute.studentconsulting.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,6 @@ public class AuthUtility {
         if (!Objects.equals(principal.toString(), "anonymousUser")) {
             return userService.findById(((UserDetailsImpl) principal).getId());
         }
-        return null;
+        throw new AppException("Lỗi lấy người dùng hiện tại");
     }
 }

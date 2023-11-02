@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByPhone(String phone) {
         return userRepository.findByPhone(phone)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng."));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
     }
 
     @Override
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(String id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng."));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
     }
 
     @Override
@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
     public User findByIdAndRoleIsNot(String id, Role admin) {
         return userRepository
                 .findByIdAndRoleIsNot(id, admin)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng."));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
     }
 
     @Override
@@ -158,13 +158,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByIdAndDepartmentIs(String id, Department department) {
         return userRepository.findByIdAndDepartmentIs(id, department)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng."));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
     }
 
     @Override
     public User findByDepartmentAndRole(Department department, Role role) {
         return userRepository.findByDepartmentAndRole(department, role)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng."));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
     }
 
     @Override
@@ -178,7 +178,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByIdAndEnabledIsTrue(String id) {
         return userRepository.findByIdAndEnabledIsTrue(id)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng."));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
     }
 
     @Override

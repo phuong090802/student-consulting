@@ -35,7 +35,7 @@ public class FieldController {
         } catch (Exception e) {
             log.error("Lỗi lấy lĩnh vực theo khoa: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy lĩnh vực theo khoa."),
+                    new MessageResponse(false, "Lỗi lấy lĩnh vực theo khoa"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -57,9 +57,9 @@ public class FieldController {
         try {
             return handleGetMyFields(value, page, size, sort);
         } catch (Exception e) {
-            log.error("Lỗi lấy các lĩnh vực của khoa: {}", e.getMessage());
+            log.error("Lỗi sắp xếp, tìm kiếm, phân trang lĩnh vực của khoa: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy các lĩnh vực của khoa."),
+                    new MessageResponse(false, "Lỗi sắp xếp, tìm kiếm, phân trang lĩnh vực của khoa"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -90,7 +90,7 @@ public class FieldController {
         } catch (Exception e) {
             log.error("Lỗi tìm kiếm lĩnh vực: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi tìm kiếm lĩnh vực."),
+                    new MessageResponse(false, "Lỗi tìm kiếm lĩnh vực"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -109,9 +109,9 @@ public class FieldController {
         try {
             return handleGetFields(value, page, size, sort);
         } catch (Exception e) {
-            log.error("Lỗi lọc, phân trang lĩnh vực: {}", e.getMessage());
+            log.error("Lỗi lọc, tìm kiếm, phân trang lĩnh vực: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lọc, phân trang lĩnh vực."),
+                    new MessageResponse(false, "Lỗi lọc, tìm kiếm, phân trang lĩnh vực"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

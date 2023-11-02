@@ -23,6 +23,6 @@ public class AuthAccessDeniedToken implements AccessDeniedHandler {
         log.error("Lỗi access denied: {}", accessDeniedException.getMessage());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        objectMapper.writeValue(response.getOutputStream(), new MessageResponse(false, "Không đủ quyền truy cập."));
+        objectMapper.writeValue(response.getOutputStream(), new MessageResponse(false, "Không đủ quyền truy cập"));
     }
 }

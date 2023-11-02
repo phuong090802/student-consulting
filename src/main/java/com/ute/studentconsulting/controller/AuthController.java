@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,7 +59,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("Lỗi đăng ký tài khoản: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi đăng ký tài khoản.")
+                    new MessageResponse(false, "Lỗi đăng ký tài khoản")
                     , HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -67,10 +68,15 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             return handleLogin(request);
+        } catch (DisabledException e) {
+            log.error("Tài khoản đã bị khóa: {}", e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Tài khoản đã bị khóa"),
+                    HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             log.error("Lỗi đăng nhập: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi đăng nhập."),
+                    new MessageResponse(false, e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -82,7 +88,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("Lỗi làm mới token: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi làm mới token."),
+                    new MessageResponse(false, "Lỗi làm mới token"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -94,7 +100,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("Lỗi đăng xuất: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi đăng xuất."),
+                    new MessageResponse(false, "Lỗi đăng xuất"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -109,7 +115,7 @@ public class AuthController {
         var response = tokenUtility.clearCookie();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, response.toString())
-                .body(new MessageResponse(true, "Đăng xuất thành công."));
+                .body(new MessageResponse(true, "Đăng xuất thành công"));
     }
 
     private ResponseEntity<?> handleRefreshToken(HttpServletRequest request) {
@@ -132,10 +138,11 @@ public class AuthController {
                 var savedToken = refreshTokenService.save(nextToken);
                 var accessToken = tokenUtility.generateToken(nextToken.getUser().getPhone());
                 var cookie = tokenUtility.setCookie(savedToken.getToken());
-                var response = new AuthModel(accessToken,
+                var response = new AuthModel(
+                        accessToken,
                         nextToken.getUser().getName(),
                         nextToken.getUser().getRole().getName().name(),
-                        null);
+                        nextToken.getUser().getAvatar());
 
                 if (tokenAuth.getParent() == null) {
                     tokenAuth.setStatus(false);
@@ -160,7 +167,7 @@ public class AuthController {
             var tokenObj = objectMapper.readValue(jsonValue, TokenModel.class);
             refreshTokenService.deleteById(tokenObj.getP());
         } catch (JsonProcessingException e) {
-            log.error("Invalid JSON data in token: {}", e.getMessage());
+            log.error("Lỗi dữ liệu JSON không hợp lệ trong token: {}", e.getMessage());
         }
         return unauthorizedResponse();
     }
@@ -169,7 +176,7 @@ public class AuthController {
         var cookie = tokenUtility.clearCookie();
         var headers = new HttpHeaders();
         headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
-        return new ResponseEntity<>(new MessageResponse(false, "Không đủ quyền truy cập."), headers, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new MessageResponse(false, "Không đủ quyền truy cập"), headers, HttpStatus.UNAUTHORIZED);
     }
 
     private ResponseEntity<?> handleLogin(LoginRequest request) {
@@ -181,7 +188,7 @@ public class AuthController {
 
         if (authority.isEmpty()) {
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Đăng nhập thất bại."),
+                    new MessageResponse(false, "Không đủ quyền truy cập"),
                     HttpStatus.UNAUTHORIZED);
         }
 
@@ -191,10 +198,11 @@ public class AuthController {
         refreshToken.setUser(user);
         var savedToken = refreshTokenService.save(refreshToken);
         var cookie = tokenUtility.setCookie(savedToken.getToken());
-        var response = new AuthModel(token,
+        var response = new AuthModel(
+                token,
                 user.getName(),
                 authority.get().getAuthority(),
-                null);
+                user.getAvatar());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new ApiResponse<>(true, response));
@@ -216,7 +224,7 @@ public class AuthController {
         user.setOccupation(request.getOccupation());
         userService.save(user);
         return new ResponseEntity<>(
-                new MessageResponse(true, "Tạo tài khoản thành công."),
+                new MessageResponse(true, "Tạo tài khoản thành công"),
                 HttpStatus.CREATED);
     }
 

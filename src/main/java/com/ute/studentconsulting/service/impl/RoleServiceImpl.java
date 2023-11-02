@@ -16,6 +16,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role findByName(RoleName name) {
         return roleRepository.findByName(name)
-                .orElseThrow(() -> new RoleException("Quyền truy cập không hợp lệ."));
+                .orElseThrow(() -> new RoleException("Quyền truy cập không hợp lệ"));
     }
 }

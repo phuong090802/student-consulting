@@ -40,7 +40,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Department findById(String id) {
         return departmentRepository.findById(id)
-                .orElseThrow(() -> new DepartmentException("Không tìm thấy phòng ban."));
+                .orElseThrow(() -> new DepartmentException("Không tìm thấy khoa"));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Department findByIdAndStatusIsTrue(String id) {
         return departmentRepository.findByIdAndStatusIsTrue(id)
-                .orElseThrow(() -> new DepartmentException("Không tìm thấy khoa."));
+                .orElseThrow(() -> new DepartmentException("Không tìm thấy khoa"));
     }
 
     @Override

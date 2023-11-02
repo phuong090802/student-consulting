@@ -24,54 +24,52 @@ public class UserUtility {
     public ErrorModel validationNewUser(UserPayload request, boolean grant) {
         var fullName = request.getName().trim();
         if (fullName.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên người dùng không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên người dùng không thể để trống");
         }
 
         var email = request.getEmail().trim();
         if (email.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Email không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Email không thể để trống");
         }
 
         var phone = request.getPhone().trim();
         if (phone.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Số điện thoại không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Số điện thoại không thể để trống");
         }
 
         var password = request.getPassword().trim();
         if (password.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Mật khẩu không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Mật khẩu không thể để trống");
         }
 
         var occupation = request.getOccupation();
         if (!grant && occupation.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Nghề nghiệp không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Nghề nghiệp không thể để trống");
         }
 
         var role = request.getRole();
-        if (role != null) {
-            if (role.isEmpty()) {
-                return new ErrorModel(HttpStatus.BAD_REQUEST, "Quyền truy cập không thể để trống.");
-            }
+        if (role != null && role.isEmpty()) {
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Quyền truy cập không thể để trống");
         }
 
         var patternEmail = Pattern.compile(EMAIL_REGEX);
         var matcherEmail = patternEmail.matcher(email);
         if (!matcherEmail.matches()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Email không đúng định dạng.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Email không đúng định dạng");
         }
 
         var patternPhone = Pattern.compile(PHONE_REGEX);
         var matcherPhone = patternPhone.matcher(phone);
         if (!matcherPhone.matches()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Số điện thoại không đúng định dạng.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Số điện thoại không đúng định dạng");
         }
 
         if (userService.existsByEmail(request.getEmail())) {
-            return new ErrorModel(HttpStatus.CONFLICT, "Email đã tồn tại.");
+            return new ErrorModel(HttpStatus.CONFLICT, "Email đã tồn tại");
         }
 
         if (userService.existsByPhone(request.getPhone())) {
-            return new ErrorModel(HttpStatus.CONFLICT, "Số điện thoại đã tồn tại.");
+            return new ErrorModel(HttpStatus.CONFLICT, "Số điện thoại đã tồn tại");
         }
         return null;
     }
@@ -82,7 +80,7 @@ public class UserUtility {
             return error;
         }
         if (request.getRole() == null) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Quyền truy cập không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Quyền truy cập không thể để trống");
         }
         return null;
     }

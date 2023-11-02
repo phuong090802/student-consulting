@@ -50,9 +50,9 @@ public class DepartmentHeadController {
         try {
             return handleAddFieldsToUser(userId, fieldIds);
         } catch (Exception e) {
-            log.error("Lỗi thêm trưởng khoa: {}", e.getMessage());
+            log.error("Lỗi lĩnh vực cho tư vấn viên: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thêm trưởng khoa."),
+                    new MessageResponse(false, "Lỗi lĩnh vực cho tư vấn viên"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -64,7 +64,7 @@ public class DepartmentHeadController {
 
     private ResponseEntity<?> handleAddFieldsToEntity(Object entity, Map<String, List<String>> fieldIds) {
         if (fieldIds == null || !fieldIds.containsKey("ids")) {
-            return new ResponseEntity<>(new MessageResponse(false, "Danh sách lĩnh vực không hợp lệ."), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse(false, "Danh sách lĩnh vực không hợp lệ"), HttpStatus.BAD_REQUEST);
         }
         var ids = fieldIds.get("ids");
         var fields = fieldService.findAllByIdIn(ids);
@@ -78,10 +78,10 @@ public class DepartmentHeadController {
         } else {
             return new ResponseEntity<>(
                     new MessageResponse(false, "Lỗi thêm lĩnh vực cho khoa/tư vấn viên. " +
-                            "Đối tượng truyền vào không phải là một thể hiện của Department/User."),
+                            "Đối tượng truyền vào không phải là một thể hiện của Department/User"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(new MessageResponse(true, "Thêm lĩnh vực thành công."), HttpStatus.OK);
+        return new ResponseEntity<>(new MessageResponse(true, "Thêm lĩnh vực thành công"), HttpStatus.OK);
     }
 
     @GetMapping("/fields/users/{id}")
@@ -91,7 +91,7 @@ public class DepartmentHeadController {
         } catch (Exception e) {
             log.error("Lỗi lấy vực chưa tồn tại của nhân viên: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy vực chưa tồn tại của nhân viên."),
+                    new MessageResponse(false, "Lỗi lấy vực chưa tồn tại của nhân viên"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -103,7 +103,7 @@ public class DepartmentHeadController {
         } catch (Exception e) {
             log.error("Lỗi lấy vực chưa tồn tại của phòng ban: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy vực chưa tồn tại của phòng ban."),
+                    new MessageResponse(false, "Lỗi lấy vực chưa tồn tại của phòng ban"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -135,7 +135,7 @@ public class DepartmentHeadController {
         } catch (Exception e) {
             log.error("Lỗi xem thông tin nhân viên: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi xem thông tin nhân viên."),
+                    new MessageResponse(false, "Lỗi xem thông tin nhân viên"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -163,7 +163,7 @@ public class DepartmentHeadController {
         } catch (Exception e) {
             log.error("Lỗi lấy lĩnh vực: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy lĩnh vực."),
+                    new MessageResponse(false, "Lỗi lấy lĩnh vực"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -181,9 +181,9 @@ public class DepartmentHeadController {
         try {
             return handleDeleteField(id);
         } catch (Exception e) {
-            log.error("Lỗi xóa lĩnh vực khổi khoa: {}", e.getMessage());
+            log.error("Lỗi xóa lĩnh vực khỏi khoa: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi xóa lĩnh vực khổi khoa."),
+                    new MessageResponse(false, "Lỗi xóa lĩnh vực khỏi khoa"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -195,7 +195,7 @@ public class DepartmentHeadController {
         var fieldSet = new HashSet<>(fields);
         department.setFields(fieldSet);
         departmentService.save(department);
-        return ResponseEntity.ok(new MessageResponse(true, "Xóa lĩnh vực thành công."));
+        return ResponseEntity.ok(new MessageResponse(true, "Xóa lĩnh vực thành công"));
     }
 
 
@@ -206,7 +206,7 @@ public class DepartmentHeadController {
         } catch (Exception e) {
             log.error("Lỗi khóa/mở khóa tài khoản: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi khóa/mở khóa tài khoản."),
+                    new MessageResponse(false, "Lỗi khóa/mở khóa tài khoản"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -216,7 +216,7 @@ public class DepartmentHeadController {
         var user = userService.findById(id);
         if (!user.getDepartment().equals(departmentHead.getDepartment())
                 || !user.getRole().getName().equals(RoleName.ROLE_COUNSELLOR)) {
-            return new ResponseEntity<>(new MessageResponse(false, "Vô hiệu hóa tài khoản không hợp lệ."), HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(new MessageResponse(false, "Lỗi vô hiệu hóa tài khoản không hợp lệ"), HttpStatus.FORBIDDEN);
         }
         var enabled = !user.getEnabled();
         user.setEnabled(enabled);
@@ -234,7 +234,7 @@ public class DepartmentHeadController {
         } catch (Exception e) {
             log.error("Lỗi thêm vĩnh vực vào khoa: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thêm vĩnh vực vào khoa."),
+                    new MessageResponse(false, "Lỗi thêm vĩnh vực vào khoa"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -251,7 +251,7 @@ public class DepartmentHeadController {
         } catch (Exception e) {
             log.error("Lỗi thêm người dùng: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thêm người dùng."),
+                    new MessageResponse(false, "Lỗi thêm người dùng"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -263,7 +263,7 @@ public class DepartmentHeadController {
         }
 
         if (!request.getRole().equals("counsellor")) {
-            return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ.", request.getRole())), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ", request.getRole())), HttpStatus.BAD_REQUEST);
         }
 
         var role = roleService.findByName(RoleName.ROLE_COUNSELLOR);
@@ -278,7 +278,7 @@ public class DepartmentHeadController {
         user.setOccupation(request.getOccupation());
         user.setDepartment(department);
         userService.save(user);
-        return ResponseEntity.ok(new MessageResponse(true, "Tạo tài khoản thành công."));
+        return ResponseEntity.ok(new MessageResponse(true, "Tạo tài khoản thành công"));
     }
 
     @GetMapping("/users")
@@ -291,9 +291,9 @@ public class DepartmentHeadController {
         try {
             return handleGetUsersInDepartment(value, page, size, sort, status);
         } catch (Exception e) {
-            log.error("Lỗi lọc, phân trang người dùng trong khoa: {}", e.getMessage());
+            log.error("Lỗi sắp xếp, tìm kiếm, lọc, phân trang người dùng trong khoa: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lọc, phân trang người dùng trong khoa."),
+                    new MessageResponse(false, "Lỗi sắp xếp, tìm kiếm, lọc, phân trang người dùng trong khoa"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -57,7 +57,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi lấy danh sách tư vấn viên chưa có phòng ban: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy danh sách tư vấn viên chưa có phòng ban."),
+                    new MessageResponse(false, "Lỗi lấy danh sách tư vấn viên chưa có phòng ban"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -92,7 +92,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi thay đổi trưởng phòng ban: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thay đổi trưởng phòng ban."),
+                    new MessageResponse(false, "Lỗi thay đổi trưởng phòng ban"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -107,7 +107,7 @@ public class AdminController {
         var newDepartmentHead = userService.findByIdAndEnabledIsTrue(userId);
         newDepartmentHead.setRole(roleDepartmentHead);
         userService.save(newDepartmentHead);
-        return ResponseEntity.ok(new MessageResponse(true, "Đổi trưởng phòng ban thành công."));
+        return ResponseEntity.ok(new MessageResponse(true, "Đổi trưởng phòng ban thành công"));
     }
 
     @GetMapping("/users/departments/{id}")
@@ -122,7 +122,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi lấy nhân viên trong phòng ban: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy nhân viên trong phòng ban."),
+                    new MessageResponse(false, "Lỗi lấy nhân viên trong phòng ban"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -167,7 +167,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi thêm tư vấn viên vào phòng ban: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thêm tư vấn viên vào phòng ban."),
+                    new MessageResponse(false, "Lỗi thêm tư vấn viên vào phòng ban"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -178,9 +178,9 @@ public class AdminController {
         if (user.getRole().getName().equals(RoleName.ROLE_COUNSELLOR)) {
             user.setDepartment(department);
             userService.save(user);
-            return ResponseEntity.ok(new MessageResponse(true, "Thêm tư vấn viên vào phòng ban thành công."));
+            return ResponseEntity.ok(new MessageResponse(true, "Thêm tư vấn viên vào phòng ban thành công"));
         }
-        return ResponseEntity.ok(new MessageResponse(false, "Người được thêm vào phòng ban không phải là tư vấn viên."));
+        return ResponseEntity.ok(new MessageResponse(false, "Lỗi người được thêm vào phòng ban không phải là tư vấn viên."));
     }
 
 
@@ -191,7 +191,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi khóa/mở khóa tài khoản: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi khóa/mở khóa tài khoản."),
+                    new MessageResponse(false, "Lỗi khóa/mở khóa tài khoản"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -213,7 +213,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi tìm kiếm người dùng: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi tìm kiếm người dùng."),
+                    new MessageResponse(false, "Lỗi tìm kiếm người dùng"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -245,9 +245,9 @@ public class AdminController {
         try {
             return handleGetUsers(value, page, size, sort, role, status, occupation);
         } catch (Exception e) {
-            log.error("Lỗi lọc, phân trang người dùng: {}", e.getMessage());
+            log.error("Lỗi sắp xếp, lọc, phân trang ,tìm kiếm người dùng: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lọc, phân trang người dùng."),
+                    new MessageResponse(false, "Lỗi sắp xếp, lọc, phân trang ,tìm kiếm người dùng"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -526,7 +526,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi thêm nhân viên: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thêm nhân viên."),
+                    new MessageResponse(false, "Lỗi thêm nhân viên"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -541,12 +541,12 @@ public class AdminController {
         var roleNameMap = Map.of("counsellor", RoleName.ROLE_COUNSELLOR, "supervisor", RoleName.ROLE_SUPERVISOR);
 
         if (!validRoles.contains(request.getRole())) {
-            return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ.", request.getRole())), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ", request.getRole())), HttpStatus.BAD_REQUEST);
         }
 
         var role = roleService.findByName(roleNameMap.get(request.getRole()));
         if (role == null) {
-            return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ.", request.getRole())), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ", request.getRole())), HttpStatus.BAD_REQUEST);
         }
 
 
@@ -559,7 +559,7 @@ public class AdminController {
                 role);
         userService.save(user);
         return new ResponseEntity<>(
-                new MessageResponse(true, "Tạo tài khoản thành công."),
+                new MessageResponse(true, "Tạo tài khoản thành công"),
                 HttpStatus.CREATED);
     }
 
@@ -570,7 +570,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi xóa lĩnh vực: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi xóa lĩnh vực."),
+                    new MessageResponse(false, "Lỗi xóa lĩnh vực"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -578,7 +578,7 @@ public class AdminController {
     private ResponseEntity<?> handleDeleteField(String id) {
         fieldService.deleteById(id);
         return new ResponseEntity<>(
-                new MessageResponse(true, "Xóa lĩnh vực thành công."),
+                new MessageResponse(true, "Xóa lĩnh vực thành công"),
                 HttpStatus.OK);
     }
 
@@ -589,7 +589,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi thêm lĩnh vực: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thêm lĩnh vực."),
+                    new MessageResponse(false, "Lỗi thêm lĩnh vực"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -601,7 +601,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi cập nhật lĩnh vực: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi cập nhật lĩnh vực."),
+                    new MessageResponse(false, "Lỗi cập nhật lĩnh vực"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -616,7 +616,7 @@ public class AdminController {
         );
         fieldService.save(fields);
         return new ResponseEntity<>(
-                new MessageResponse(true, "Thêm lĩnh vực thành công."),
+                new MessageResponse(true, "Thêm lĩnh vực thành công"),
                 HttpStatus.CREATED);
     }
 
@@ -630,7 +630,7 @@ public class AdminController {
         field.setName(request.getName());
         fieldService.save(field);
         return new ResponseEntity<>(
-                new MessageResponse(true, "Cập nhật lĩnh vực thành công."),
+                new MessageResponse(true, "Cập nhật lĩnh vực thành công"),
                 HttpStatus.OK);
 
     }
@@ -642,7 +642,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi tạo khoa: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi tạo khoa."),
+                    new MessageResponse(false, "Lỗi tạo khoa"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -655,7 +655,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi cập nhật khoa: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi cập nhật khoa."),
+                    new MessageResponse(false, "Lỗi cập nhật khoa"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -667,7 +667,7 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Lỗi cập nhật trạng thái khoa: {}", e.getMessage());
             return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi cập nhật trạng thái khoa."),
+                    new MessageResponse(false, "Lỗi cập nhật trạng thái khoa"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -694,7 +694,7 @@ public class AdminController {
 
         departmentService.save(department);
         return new ResponseEntity<>(
-                new MessageResponse(true, "Cập nhật khoa thành công."),
+                new MessageResponse(true, "Cập nhật khoa thành công"),
                 HttpStatus.OK);
     }
 
@@ -710,17 +710,17 @@ public class AdminController {
         department.setStatus(true);
         departmentService.save(department);
         return new ResponseEntity<>(
-                new MessageResponse(true, "Thêm khoa thành công."),
+                new MessageResponse(true, "Thêm khoa thành công"),
                 HttpStatus.CREATED);
     }
 
     private ErrorModel validationCreateDepartment(DepartmentPayload request) {
         var name = request.getName().trim();
         if (name.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên khoa không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên khoa không thể để trống");
         }
         if (departmentService.existsByName(name)) {
-            return new ErrorModel(HttpStatus.CONFLICT, "khoa đã tồn tại.");
+            return new ErrorModel(HttpStatus.CONFLICT, "Khoa đã tồn tại");
         }
         return null;
     }
@@ -728,9 +728,9 @@ public class AdminController {
     public ErrorModel validationUpdateDepartment(String id, DepartmentPayload request) {
         String name = request.getName().trim();
         if (name.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên khoa không để thể trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên khoa không để thể trống");
         } else if (departmentService.existsByNameAndIdIsNot(name, id)) {
-            return new ErrorModel(HttpStatus.CONFLICT, "khoa đã tồn tại.");
+            return new ErrorModel(HttpStatus.CONFLICT, "Khoa đã tồn tại");
         }
         return null;
     }
@@ -738,10 +738,10 @@ public class AdminController {
     private ErrorModel validationCreateField(FieldPayload request) {
         var name = request.getName().trim();
         if (name.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên lĩnh vực không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên lĩnh vực không thể để trống");
         }
         if (fieldService.existsByName(name)) {
-            return new ErrorModel(HttpStatus.CONFLICT, "Lĩnh vực đã tồn tại.");
+            return new ErrorModel(HttpStatus.CONFLICT, "Lĩnh vực đã tồn tại");
         }
         return null;
     }
@@ -749,9 +749,9 @@ public class AdminController {
     public ErrorModel validationUpdateField(String id, FieldPayload request) {
         String name = request.getName().trim();
         if (name.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên lĩnh vực không thể để trống.");
+            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tên lĩnh vực không thể để trống");
         } else if (fieldService.existsByNameAndIdIsNot(name, id)) {
-            return new ErrorModel(HttpStatus.CONFLICT, "Lĩnh vực đã tồn tại.");
+            return new ErrorModel(HttpStatus.CONFLICT, "Lĩnh vực đã tồn tại");
         }
         return null;
     }

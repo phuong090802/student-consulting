@@ -24,6 +24,6 @@ public class AuthEntryPointToken implements AuthenticationEntryPoint {
         log.error("Lỗi unauthorized: {}", authException.getMessage());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        objectMapper.writeValue(response.getOutputStream(), new MessageResponse(false, "Xác thực thất bại."));
+        objectMapper.writeValue(response.getOutputStream(), new MessageResponse(false, "Xác thực thất bại"));
     }
 }
