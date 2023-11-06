@@ -13,6 +13,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
+    @Transactional
     public RefreshToken save(RefreshToken refreshToken) {
         return refreshTokenRepository.save(refreshToken);
     }
@@ -30,6 +31,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
+    @Transactional
     public void deleteById(String id) {
         refreshTokenRepository.deleteById(id);
     }

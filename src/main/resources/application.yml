@@ -11,7 +11,9 @@ spring:
 student-consulting:
   app:
     secret-key: 67015ba41e76f595a687c752b482121f7259a9964b1ea2db616727a909a6d579473ecb268096f98b13ba271af5f5dfa932773316bd37df0048e2a42b71864e83
-    access-token-expires-ms: 300000
+    #access-token-expires-ms: 300000
+    access-token-expires-ms: 15000
+
     refresh-token-expires-ms: 604800000
     cookie-name: refreshToken
 

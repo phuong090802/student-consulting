@@ -130,13 +130,14 @@ public class AuthController {
             var parent = tokenAuth.getParent() != null ? tokenAuth.getParent() : tokenAuth;
 
             if (tokenAuth.getStatus() && tokenAuth.getExpires().compareTo(new Date()) > 0) {
-
                 refreshTokenService.deleteByParent(parent);
                 var nextToken = tokenUtility.generateRefreshToken(parent.getToken());
                 nextToken.setUser(tokenAuth.getUser());
                 nextToken.setParent(parent);
+
                 var savedToken = refreshTokenService.save(nextToken);
                 var accessToken = tokenUtility.generateToken(nextToken.getUser().getPhone());
+
                 var cookie = tokenUtility.setCookie(savedToken.getToken());
                 var response = new AuthModel(
                         accessToken,
@@ -148,26 +149,20 @@ public class AuthController {
                     tokenAuth.setStatus(false);
                     refreshTokenService.save(tokenAuth);
                 }
-
-
                 return ResponseEntity.ok()
                         .header(HttpHeaders.SET_COOKIE, cookie.toString())
                         .body(new ApiResponse<>(true, response));
             }
-
-            if (!tokenAuth.getStatus() || tokenAuth.getExpires().compareTo(new Date()) <= 0) {
-                refreshTokenService.deleteById(parent.getToken());
-                return unauthorizedResponse();
+            refreshTokenService.deleteById(parent.getToken());
+        } else {
+            try {
+                var bytes = Base64.getUrlDecoder().decode(tokenValue);
+                var jsonValue = new String(bytes, StandardCharsets.UTF_8);
+                var tokenObj = objectMapper.readValue(jsonValue, TokenModel.class);
+                refreshTokenService.deleteById(tokenObj.getP());
+            } catch (JsonProcessingException e) {
+                log.error("Lỗi dữ liệu JSON không hợp lệ trong token: {}", e.getMessage());
             }
-        }
-
-        try {
-            var bytes = Base64.getUrlDecoder().decode(tokenValue);
-            var jsonValue = new String(bytes, StandardCharsets.UTF_8);
-            var tokenObj = objectMapper.readValue(jsonValue, TokenModel.class);
-            refreshTokenService.deleteById(tokenObj.getP());
-        } catch (JsonProcessingException e) {
-            log.error("Lỗi dữ liệu JSON không hợp lệ trong token: {}", e.getMessage());
         }
         return unauthorizedResponse();
     }
