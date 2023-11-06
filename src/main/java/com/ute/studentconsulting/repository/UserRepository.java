@@ -208,5 +208,10 @@ public interface UserRepository extends JpaRepository<User, String> {
             "AND u.role = :role AND u.enabled = true  ")
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIsTrue
             (@Param("value") String value, @Param("role") Role role, Pageable pageable);
-
+    Page<User> findAllByDepartmentIsAndEnabledIsTrue(Pageable pageable, Department department);
+    @Query("SELECT u FROM User u " +
+            "WHERE (LOWER(u.name) LIKE %:value% OR LOWER(u.email) LIKE %:value%) " +
+            "AND u.department = :department AND u.enabled = true  ")
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIsTrue
+            (@Param("value") String value, @Param("department") Department department, Pageable pageable);
 }

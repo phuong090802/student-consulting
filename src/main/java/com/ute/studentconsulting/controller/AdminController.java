@@ -45,6 +45,36 @@ public class AdminController {
     private final RoleService roleService;
     private final SortUtility sortUtility;
 
+    @GetMapping("/users/{id}/departments")
+    public ResponseEntity<?> getDepartmentOfUser(
+            @PathVariable("id") String userId) {
+        try {
+            return handleGetDepartmentOfUser(userId);
+        } catch (Exception e) {
+            log.error("Lỗi lấy phòng ban của người dùng: {}", e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lấy phòng ban của người dùng"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private ResponseEntity<?> handleGetDepartmentOfUser(String id) {
+        var user = userService.findById(id);
+        var department = user.getDepartment();
+        if (department == null) {
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Người dùng không nằm trong phòng ban nào cả"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(new ApiResponse<>(true,
+                new DepartmentPayload(
+                        department.getId(),
+                        department.getName(),
+                        department.getDescription(),
+                        department.getStatus()
+                )));
+    }
+
     @GetMapping("/users/department-is-null")
     public ResponseEntity<?> getCounsellorDepartmentIsNull(
             @RequestParam(required = false, name = "value") String value,
@@ -101,9 +131,11 @@ public class AdminController {
         var department = departmentService.findByIdAndStatusIsTrue(departmentId);
         var roleDepartmentHead = roleService.findByName(RoleName.ROLE_DEPARTMENT_HEAD);
         var oldDepartmentHead = userService.findByDepartmentAndRole(department, roleDepartmentHead);
-        var roleCounsellor = roleService.findByName(RoleName.ROLE_COUNSELLOR);
-        oldDepartmentHead.setRole(roleCounsellor);
-        userService.save(oldDepartmentHead);
+        if (oldDepartmentHead != null) {
+            var roleCounsellor = roleService.findByName(RoleName.ROLE_COUNSELLOR);
+            oldDepartmentHead.setRole(roleCounsellor);
+            userService.save(oldDepartmentHead);
+        }
         var newDepartmentHead = userService.findByIdAndEnabledIsTrue(userId);
         newDepartmentHead.setRole(roleDepartmentHead);
         userService.save(newDepartmentHead);
@@ -131,14 +163,24 @@ public class AdminController {
         var department = departmentService.findByIdAndStatusIsTrue(id);
         var roleDepartmentHead = roleService.findByName(RoleName.ROLE_DEPARTMENT_HEAD);
         var departmentHead = userService.findByDepartmentAndRole(department, roleDepartmentHead);
-
         var orders = sortUtility.sortOrders(sort);
         var pageable = PageRequest.of(page, size, Sort.by(orders));
-        var userPage = (value == null) ?
-                userService.findAllByDepartmentIsAndIdIsNotAndEnabledIsTrue(pageable, department, departmentHead.getId())
-                : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue(
-                value, department, departmentHead.getId(), pageable
-        );
+
+        Page<User> userPage;
+        if (departmentHead != null) {
+            userPage = (value == null) ?
+                    userService.findAllByDepartmentIsAndIdIsNotAndEnabledIsTrue(pageable, department, departmentHead.getId())
+                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue(
+                    value, department, departmentHead.getId(), pageable
+            );
+        } else {
+            userPage = (value == null) ?
+                    userService.findAllByDepartmentIsAndEnabledIsTrue(pageable, department)
+                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIsTrue(
+                    value, department, pageable
+            );
+        }
+
         var staffs = userUtility.mapUserPageToStaffModels(userPage);
         var items =
                 new PaginationModel<>(
@@ -149,11 +191,12 @@ public class AdminController {
         var response = new HashMap<>();
         response.put("counsellor", items);
         response.put("departmentHead",
-                new StaffModel(
+                (departmentHead != null) ? new StaffModel(
                         departmentHead.getId(),
                         departmentHead.getName(),
                         departmentHead.getEmail(),
-                        departmentHead.getAvatar()));
+                        departmentHead.getAvatar()
+                ) : null);
         return ResponseEntity.ok(new ApiResponse<>(true, response));
     }
 

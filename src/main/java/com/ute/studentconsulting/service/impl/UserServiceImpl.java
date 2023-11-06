@@ -164,7 +164,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByDepartmentAndRole(Department department, Role role) {
         return userRepository.findByDepartmentAndRole(department, role)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
+                .orElse(null);
     }
 
     @Override
@@ -209,6 +209,17 @@ public class UserServiceImpl implements UserService {
         return userRepository
                 .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIsTrue
                         (value, department, id, pageable);
+    }
+
+    @Override
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIsTrue(String value, Department department, Pageable pageable) {
+        return userRepository
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIsTrue(value, department, pageable);
+    }
+
+    @Override
+    public Page<User> findAllByDepartmentIsAndEnabledIsTrue(Pageable pageable, Department department) {
+        return userRepository.findAllByDepartmentIsAndEnabledIsTrue(pageable, department);
     }
 
     @Override

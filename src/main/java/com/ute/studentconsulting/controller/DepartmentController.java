@@ -25,7 +25,6 @@ public class DepartmentController {
     private final SortUtility sortUtility;
     private final AuthUtility authUtility;
 
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/all")
     public ResponseEntity<?> getAllDepartment() {
         try {
