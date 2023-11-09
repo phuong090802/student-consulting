@@ -4,6 +4,7 @@ import com.ute.studentconsulting.entity.Department;
 import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.entity.RoleName;
 import com.ute.studentconsulting.entity.User;
+import com.ute.studentconsulting.exception.AppException;
 import com.ute.studentconsulting.model.CounsellorModel;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.payloads.UserPayload;
@@ -44,6 +45,28 @@ public class DepartmentHeadController {
     private final FieldService fieldService;
     private final DepartmentService departmentService;
 
+    @DeleteMapping("/users/{userId}/fields/{fieldId}")
+    public ResponseEntity<?> deleteFieldOfUser(@PathVariable("userId") String userId, @PathVariable("fieldId") String fieldId) {
+        try {
+            return handleDeleteFieldOfUser(userId, fieldId);
+        } catch (Exception e) {
+            log.error("Lỗi xóa lĩnh vực của người dùng: {}", e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi xóa lĩnh vực của người dùng"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private ResponseEntity<?> handleDeleteFieldOfUser(String userId, String fieldId) {
+        var user = userService.findById(userId);
+        var ids = getIds(user, fieldId);
+        var fields = fieldService.findAllByIdIn(ids);
+        var fieldSet = new HashSet<>(fields);
+        user.setFields(fieldSet);
+        userService.save(user);
+        return ResponseEntity.ok(new MessageResponse(true, "Xóa lĩnh vực cua tư vấn viên thành công"));
+    }
+
     @PostMapping("/fields/users/{userId}")
     public ResponseEntity<?> addFieldsToUser
             (@PathVariable("userId") String userId, @RequestBody Map<String, List<String>> fieldIds) {
@@ -63,23 +86,31 @@ public class DepartmentHeadController {
     }
 
     private ResponseEntity<?> handleAddFieldsToEntity(Object entity, Map<String, List<String>> fieldIds) {
-        if (fieldIds == null || !fieldIds.containsKey("ids")) {
-            return new ResponseEntity<>(new MessageResponse(false, "Danh sách lĩnh vực không hợp lệ"), HttpStatus.BAD_REQUEST);
-        }
-        var ids = fieldIds.get("ids");
-        var fields = fieldService.findAllByIdIn(ids);
-        var fieldSet = new HashSet<>(fields);
-        if (entity instanceof User user) {
-            user.setFields(fieldSet);
-            userService.save(user);
-        } else if (entity instanceof Department department) {
-            department.setFields(fieldSet);
-            departmentService.save(department);
-        } else {
+        if (!(entity instanceof Department) && !(entity instanceof User)) {
             return new ResponseEntity<>(
                     new MessageResponse(false, "Lỗi thêm lĩnh vực cho khoa/tư vấn viên. " +
                             "Đối tượng truyền vào không phải là một thể hiện của Department/User"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        if (fieldIds == null || !fieldIds.containsKey("ids")) {
+            return new ResponseEntity<>(new MessageResponse(false, "Danh sách lĩnh vực không hợp lệ"), HttpStatus.BAD_REQUEST);
+        }
+        var ids = fieldIds.get("ids");
+        var entityFields = new ArrayList<>(ids);
+        if (entity instanceof User user) {
+            entityFields.addAll(user.getFields().stream().map(Field::getId).toList());
+            var fields = fieldService.findAllByIdIn(entityFields);
+            var fieldSet = new HashSet<>(fields);
+            user.setFields(fieldSet);
+            userService.save(user);
+        } else {
+            Department department = (Department) entity;
+            entityFields.addAll(department.getFields().stream().map(Field::getId).toList());
+            var fields = fieldService.findAllByIdIn(entityFields);
+            var fieldSet = new HashSet<>(fields);
+            department.setFields(fieldSet);
+            departmentService.save(department);
         }
         return new ResponseEntity<>(new MessageResponse(true, "Thêm lĩnh vực thành công"), HttpStatus.OK);
     }
@@ -111,7 +142,7 @@ public class DepartmentHeadController {
     private ResponseEntity<?> handleGetFieldsNoneDepartment() {
         var department = authUtility.getCurrentUser().getDepartment();
         var idsOfDepartment = department.getFields().stream().map(Field::getId).toList();
-        var fields = fieldService.findAllByIdIsNotIn(idsOfDepartment);
+        var fields = idsOfDepartment.isEmpty() ? fieldService.findAll() : fieldService.findAllByIdIsNotIn(idsOfDepartment);
         return ResponseEntity.ok(new ApiResponse<>(true, fields));
     }
 
@@ -179,7 +210,7 @@ public class DepartmentHeadController {
     @DeleteMapping("/fields/{id}")
     public ResponseEntity<?> deleteField(@PathVariable("id") String id) {
         try {
-            return handleDeleteField(id);
+            return handleDeleteFieldOfDepartment(id);
         } catch (Exception e) {
             log.error("Lỗi xóa lĩnh vực khỏi khoa: {}", e.getMessage());
             return new ResponseEntity<>(
@@ -188,14 +219,27 @@ public class DepartmentHeadController {
         }
     }
 
-    private ResponseEntity<?> handleDeleteField(String id) {
+    private ResponseEntity<?> handleDeleteFieldOfDepartment(String fieldId) {
         var department = authUtility.getCurrentUser().getDepartment();
-        var ids = department.getFields().stream().map(Field::getId).filter(fid -> !fid.equals(id)).toList();
+        var ids = getIds(department, fieldId);
         var fields = fieldService.findAllByIdIn(ids);
         var fieldSet = new HashSet<>(fields);
         department.setFields(fieldSet);
         departmentService.save(department);
-        return ResponseEntity.ok(new MessageResponse(true, "Xóa lĩnh vực thành công"));
+        return ResponseEntity.ok(new MessageResponse(true, "Xóa lĩnh vực phòng ban thành công"));
+    }
+
+    private List<String> getIds(Object entity, String fieldId) {
+        if (!(entity instanceof Department) && !(entity instanceof User)) {
+            throw new AppException(
+                    "Lỗi xóa lĩnh vực cho khoa/tư vấn viên. Đối tượng truyền vào không phải là một thể hiện của Department/User");
+        }
+        if (entity instanceof User user) {
+            return user.getFields().stream().map(Field::getId).filter(fid -> !fid.equals(fieldId)).toList();
+        } else {
+            Department department = (Department) entity;
+            return department.getFields().stream().map(Field::getId).filter(fid -> !fid.equals(fieldId)).toList();
+        }
     }
 
 

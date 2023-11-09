@@ -1,11 +1,14 @@
 package com.ute.studentconsulting.controller;
 
+import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.payloads.DepartmentPayload;
 import com.ute.studentconsulting.payloads.response.ApiResponse;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
 import com.ute.studentconsulting.service.DepartmentService;
+import com.ute.studentconsulting.service.FieldService;
 import com.ute.studentconsulting.utility.AuthUtility;
+import com.ute.studentconsulting.utility.FieldUtility;
 import com.ute.studentconsulting.utility.SortUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,30 @@ public class DepartmentController {
     private final DepartmentService departmentService;
     private final SortUtility sortUtility;
     private final AuthUtility authUtility;
+    private final FieldUtility fieldUtility;
+
+    @PreAuthorize("hasRole('COUNSELLOR') or hasRole('DEPARTMENT_HEAD')")
+    @GetMapping("/fields/my")
+    public ResponseEntity<?> getFieldsInDepartment(
+            @RequestParam(required = false, name = "value") String value,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "3") int size,
+            @RequestParam(defaultValue = "name, asc", name = "sort") String[] sort) {
+        try {
+            return handleGetFieldsInDepartment(value, page, size, sort);
+        } catch (Exception e) {
+            log.error("Lỗi lọc, tìm kiếm, phân trang lĩnh vực trong phòng ban: {}", e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lọc, tìm kiếm, phân trang lĩnh vực trong phòng ban"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private ResponseEntity<?> handleGetFieldsInDepartment(String value, int page, int size, String[] sort) {
+        var user = authUtility.getCurrentUser();
+        var ids = user.getDepartment().getFields().stream().map(Field::getId).toList();
+        return fieldUtility.getFieldsByIds(ids, value, page, size, sort);
+    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllDepartment() {

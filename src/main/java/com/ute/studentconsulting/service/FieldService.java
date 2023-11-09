@@ -29,4 +29,5 @@ public interface FieldService {
     Page<Field> findByNameContainingAndIdIn(String value, Collection<String> ids, Pageable pageable);
 
     List<Field> findAllByIdIsNotIn(Collection<String> ids);
+    List<Field> findAll();
 }

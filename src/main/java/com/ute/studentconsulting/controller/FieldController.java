@@ -4,6 +4,7 @@ import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
 import com.ute.studentconsulting.service.DepartmentService;
 import com.ute.studentconsulting.utility.AuthUtility;
+import com.ute.studentconsulting.utility.FieldUtility;
 import com.ute.studentconsulting.utility.SortUtility;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.payloads.response.ApiResponse;
@@ -26,6 +27,7 @@ public class FieldController {
     private final SortUtility sortUtility;
     private final AuthUtility authUtility;
     private final DepartmentService departmentService;
+    private final FieldUtility fieldUtility;
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/departments/{id}")
@@ -66,20 +68,8 @@ public class FieldController {
 
     private ResponseEntity<?> handleGetMyFields(String value, int page, int size, String[] sort) {
         var user = authUtility.getCurrentUser();
-        var ids = user.getDepartment().getFields().stream().map(Field::getId).toList();
-        var orders = sortUtility.sortOrders(sort);
-        var pageable = PageRequest.of(page, size, Sort.by(orders));
-        var fieldPage = (value == null)
-                ? fieldService.findAllByIdIn(pageable, ids)
-                : fieldService.findByNameContainingAndIdIn(value, ids, pageable);
-        var fields = fieldPage.getContent();
-        var response =
-                new PaginationModel<>(
-                        fields,
-                        fieldPage.getNumber(),
-                        fieldPage.getTotalPages()
-                );
-        return ResponseEntity.ok(new ApiResponse<>(true, response));
+        var ids = user.getFields().stream().map(Field::getId).toList();
+        return fieldUtility.getFieldsByIds(ids, value, page, size, sort);
     }
 
 
