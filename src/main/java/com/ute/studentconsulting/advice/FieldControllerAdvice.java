@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class FieldControllerAdvice {
     @ExceptionHandler(value = FieldException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public MessageResponse handleFieldException(FieldException exception) {
         return new MessageResponse(false, exception.getMessage());
     }

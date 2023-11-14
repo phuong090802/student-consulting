@@ -25,8 +25,10 @@ public class RefreshToken {
     @Column(name = "status")
     private Boolean status;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToOne(cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
     @JoinColumn(name = "parent")
     private RefreshToken parent;
 
@@ -34,8 +36,10 @@ public class RefreshToken {
             cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RefreshToken> children = new HashSet<>();
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToOne(cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
     @JoinColumn(name = "user_id")
     private User user;
 }

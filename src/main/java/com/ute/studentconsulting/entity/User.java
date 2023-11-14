@@ -51,8 +51,10 @@ public class User {
     private String occupation;
 
     @NonNull
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToOne(cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
     @JoinColumn(name = "role_id")
     private Role role;
 
@@ -60,8 +62,10 @@ public class User {
             cascade = CascadeType.ALL)
     private Set<RefreshToken> refreshTokens;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    }, fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id")
     private Department department;
 
@@ -74,6 +78,6 @@ public class User {
 
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL)
-    private Set<Question> Questions;
+    private Set<Question> questions = new HashSet<>();
 
 }

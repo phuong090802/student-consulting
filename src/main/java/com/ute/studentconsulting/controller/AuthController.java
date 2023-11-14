@@ -130,9 +130,13 @@ public class AuthController {
             var parent = tokenAuth.getParent() != null ? tokenAuth.getParent() : tokenAuth;
 
             if (tokenAuth.getStatus() && tokenAuth.getExpires().compareTo(new Date()) > 0) {
+                if (tokenAuth.getParent() == null) {
+                    tokenAuth.setStatus(false);
+                    refreshTokenService.save(tokenAuth);
+                }
                 refreshTokenService.deleteByParent(parent);
                 var nextToken = tokenUtility.generateRefreshToken(parent.getToken());
-                nextToken.setUser(tokenAuth.getUser());
+                nextToken.setUser(parent.getUser());
                 nextToken.setParent(parent);
 
                 var savedToken = refreshTokenService.save(nextToken);
@@ -145,10 +149,6 @@ public class AuthController {
                         nextToken.getUser().getRole().getName().name(),
                         nextToken.getUser().getAvatar());
 
-                if (tokenAuth.getParent() == null) {
-                    tokenAuth.setStatus(false);
-                    refreshTokenService.save(tokenAuth);
-                }
                 return ResponseEntity.ok()
                         .header(HttpHeaders.SET_COOKIE, cookie.toString())
                         .body(new ApiResponse<>(true, response));

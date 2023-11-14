@@ -60,6 +60,7 @@ public class FieldServiceImpl implements FieldService {
                 .orElseThrow(() -> new FieldException("Không tìm thấy lĩnh vực"));
     }
 
+
     @Override
     public Page<Field> findByNameContainingAndIdIn(String value, Collection<String> ids, Pageable pageable) {
         return fieldRepository.findByNameContainingAndIdIn(value, ids, pageable);

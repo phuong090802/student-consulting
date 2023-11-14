@@ -6,7 +6,6 @@ import com.ute.studentconsulting.payloads.DepartmentPayload;
 import com.ute.studentconsulting.payloads.response.ApiResponse;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
 import com.ute.studentconsulting.service.DepartmentService;
-import com.ute.studentconsulting.service.FieldService;
 import com.ute.studentconsulting.utility.AuthUtility;
 import com.ute.studentconsulting.utility.FieldUtility;
 import com.ute.studentconsulting.utility.SortUtility;

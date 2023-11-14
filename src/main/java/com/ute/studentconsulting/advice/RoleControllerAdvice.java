@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class RoleControllerAdvice {
     @ExceptionHandler(value = RoleException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public MessageResponse handleRoleException(RoleException exception) {
         return new MessageResponse(false, exception.getMessage());
     }

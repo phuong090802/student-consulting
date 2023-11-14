@@ -23,7 +23,9 @@ public class Role {
     private RoleName name;
 
     @OneToMany(mappedBy = "role",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-                    CascadeType.DETACH, CascadeType.REFRESH})
+            cascade = {
+                    CascadeType.PERSIST, CascadeType.MERGE,
+                    CascadeType.DETACH, CascadeType.REFRESH
+            })
     private Set<User> users;
 }

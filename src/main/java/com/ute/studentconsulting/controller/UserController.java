@@ -1,13 +1,11 @@
 package com.ute.studentconsulting.controller;
 
-import com.ute.studentconsulting.entity.Notification;
 import com.ute.studentconsulting.entity.Question;
 import com.ute.studentconsulting.model.ErrorModel;
 import com.ute.studentconsulting.payloads.QuestionPayload;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
 import com.ute.studentconsulting.service.DepartmentService;
 import com.ute.studentconsulting.service.FieldService;
-import com.ute.studentconsulting.service.NotificationService;
 import com.ute.studentconsulting.service.QuestionService;
 import com.ute.studentconsulting.utility.AuthUtility;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,7 @@ public class UserController {
     private final DepartmentService departmentService;
     private final FieldService fieldService;
     private final QuestionService questionService;
-    private final NotificationService notificationService;
+
 
     @PostMapping("/questions")
     private ResponseEntity<?> createQuestion(@RequestBody QuestionPayload request) {
@@ -57,21 +55,14 @@ public class UserController {
                 request.getTitle(),
                 request.getContent(),
                 new Date(),
-                0,
+                false,
                 0,
                 user,
                 department,
                 field);
 
-        var savedQuestion = questionService.save(question);
-        var notification = new Notification(
-                "Câu hỏi mới",
-                true,
-                new Date(),
-                department,
-                savedQuestion
-        );
-        notificationService.save(notification);
+        questionService.save(question);
+
         return ResponseEntity.ok(
                 new MessageResponse(true, "Đặt câu hỏi thành công"));
     }

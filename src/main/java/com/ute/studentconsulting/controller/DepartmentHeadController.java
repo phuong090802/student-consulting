@@ -1,24 +1,17 @@
 package com.ute.studentconsulting.controller;
 
-import com.ute.studentconsulting.entity.Department;
-import com.ute.studentconsulting.entity.Field;
-import com.ute.studentconsulting.entity.RoleName;
-import com.ute.studentconsulting.entity.User;
+import com.ute.studentconsulting.entity.*;
 import com.ute.studentconsulting.exception.AppException;
 import com.ute.studentconsulting.model.CounsellorModel;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.payloads.UserPayload;
 import com.ute.studentconsulting.payloads.response.ApiResponse;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
-import com.ute.studentconsulting.service.DepartmentService;
-import com.ute.studentconsulting.service.FieldService;
-import com.ute.studentconsulting.service.RoleService;
-import com.ute.studentconsulting.service.UserService;
-import com.ute.studentconsulting.utility.AuthUtility;
-import com.ute.studentconsulting.utility.SortUtility;
-import com.ute.studentconsulting.utility.UserUtility;
+import com.ute.studentconsulting.service.*;
+import com.ute.studentconsulting.utility.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -44,6 +37,49 @@ public class DepartmentHeadController {
     private final PasswordEncoder passwordEncoder;
     private final FieldService fieldService;
     private final DepartmentService departmentService;
+    private final QuestionService questionService;
+    private final QuestionUtility questionUtility;
+
+    @GetMapping("/questions")
+    public ResponseEntity<?> getQuestions(
+            @RequestParam(defaultValue = "all", name = "value") String value,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "3") int size,
+            @RequestParam(defaultValue = "date, asc", name = "sort") String[] sort
+    ) {
+
+        try {
+            return handleGetQuestions(value, page, size, sort);
+        } catch (Exception e) {
+            log.error("Lỗi lọc, phân trang câu hỏi: {}", e.getMessage());
+            return new ResponseEntity<>(
+                    new MessageResponse(false, "Lỗi lọc, phân trang câu hỏi"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private ResponseEntity<?> handleGetQuestions(String value, int page, int size, String[] sort) {
+        var orders = sortUtility.sortOrders(sort);
+        var pageable = PageRequest.of(page, size, Sort.by(orders));
+        var departmentHead = authUtility.getCurrentUser();
+        Page<Question> questionPage;
+        if (value.equals("all")) {
+            var ids = departmentHead.getDepartment().getFields().stream().map(Field::getId).toList();
+            questionPage = questionService.findByStatusIsAndFieldIdIn(false, ids, pageable);
+        } else {
+            var field = fieldService.findById(value);
+            questionPage = questionService.findByStatusIsAndFieldIs(false, field, pageable);
+        }
+        var questions = questionUtility.mapQuestionPageToQuestionModels(questionPage);
+        var response =
+                new PaginationModel<>(
+                        questions,
+                        questionPage.getNumber(),
+                        questionPage.getTotalPages()
+                );
+        return ResponseEntity.ok(new ApiResponse<>(true, response));
+    }
+
 
     @DeleteMapping("/users/{userId}/fields/{fieldId}")
     public ResponseEntity<?> deleteFieldOfUser(@PathVariable("userId") String userId, @PathVariable("fieldId") String fieldId) {

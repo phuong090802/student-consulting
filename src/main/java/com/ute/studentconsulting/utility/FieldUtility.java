@@ -1,14 +1,18 @@
 package com.ute.studentconsulting.utility;
 
+import com.ute.studentconsulting.entity.Question;
 import com.ute.studentconsulting.model.PaginationModel;
+import com.ute.studentconsulting.model.QuestionItemModel;
 import com.ute.studentconsulting.payloads.response.ApiResponse;
 import com.ute.studentconsulting.service.FieldService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Component
