@@ -11,13 +11,13 @@ import java.util.Collection;
 public interface QuestionService {
     void save(Question question);
 
-    Page<Question> findByStatusIsAndFieldIs(Boolean status, Field field, Pageable pageable);
+    Page<Question> findByStatusIsAndFieldIs(int status, Field field, Pageable pageable);
 
-    Page<Question> findByStatusIsAndFieldIdIn(Boolean status, Collection<String> ids, Pageable pageable);
+    Page<Question> findByStatusIsAndFieldIdIn(int status, Collection<String> ids, Pageable pageable);
 
-    boolean existsByStatusIsAndFieldIdIn(Boolean status, Collection<String> ids);
+    boolean existsByStatusIsAndFieldIdIn(int status, Collection<String> ids);
 
-    boolean existsByStatusIsAndFieldIs(Boolean status, Field field);
+    boolean existsByStatusIsAndFieldIs(int status, Field field);
 
     Page<Question> findAll(Pageable pageable);
 

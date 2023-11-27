@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -42,7 +41,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Department findById(String id) {
         return departmentRepository.findById(id)
-                .orElseThrow(() -> new DepartmentException("Không tìm thấy khoa"));
+                .orElseThrow(() -> new DepartmentException(
+                        "Không tìm thấy khoa",
+                        "Không tìm thấy khoa với id: " + id, 10001));
     }
 
     @Override
@@ -52,12 +53,16 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsTrue(String value, Pageable pageable) {
-        return departmentRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsTrue(value, value, pageable);
+        return departmentRepository
+                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsTrue(
+                        value, value, pageable);
     }
 
     @Override
     public Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsFalse(String value, Pageable pageable) {
-        return departmentRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsFalse(value, value, pageable);
+        return departmentRepository
+                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsFalse
+                        (value, value, pageable);
     }
 
     @Override
@@ -73,7 +78,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Department findByIdAndStatusIsTrue(String id) {
         return departmentRepository.findByIdAndStatusIsTrue(id)
-                .orElseThrow(() -> new DepartmentException("Không tìm thấy khoa"));
+                .orElseThrow(() -> new DepartmentException(
+                        "Không tìm thấy khoa có trạng thái hoạt động",
+                        "Không tìm thấy khoa có trạng thái hoạt động với id: " + id, 10002));
     }
 
     @Override

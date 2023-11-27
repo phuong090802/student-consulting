@@ -1,6 +1,7 @@
 package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Field;
+import com.ute.studentconsulting.exception.ServerException;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.payloads.DepartmentPayload;
 import com.ute.studentconsulting.payloads.response.ApiResponse;
@@ -39,9 +40,7 @@ public class DepartmentController {
             return handleGetFieldsInDepartment(value, page, size, sort);
         } catch (Exception e) {
             log.error("Lỗi lọc, tìm kiếm, phân trang lĩnh vực trong phòng ban: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lọc, tìm kiếm, phân trang lĩnh vực trong phòng ban"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lọc, tìm kiếm, phân trang lĩnh vực trong phòng ban", e.getMessage(), 10052);
         }
     }
 
@@ -57,9 +56,7 @@ public class DepartmentController {
             return handleGetAllDepartment();
         } catch (Exception e) {
             log.error("Lỗi lấy danh sách khoa: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy danh sách khoa"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lấy danh sách khoa", e.getMessage(), 10053);
         }
     }
 
@@ -81,9 +78,7 @@ public class DepartmentController {
             return handleGetMyDepartment();
         } catch (Exception e) {
             log.error("Lỗi lấy khoa hiện tại: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy khoa hiện tại"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lấy khoa hiện tại", e.getMessage(), 10054);
         }
     }
 
@@ -93,9 +88,7 @@ public class DepartmentController {
             return handleGetDepartment(id);
         } catch (Exception e) {
             log.error("Lỗi tìm kiếm khoa: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi tìm kiếm khoa"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi tìm kiếm khoa", e.getMessage(), 10055);
         }
     }
 
@@ -110,9 +103,7 @@ public class DepartmentController {
             return handleGetDepartments(value, page, size, sort, status);
         } catch (Exception e) {
             log.error("Lỗi tìm kiếm, sắp xếp, lọc, phân trang khoa: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi tìm kiếm, sắp xếp, lọc, phân trang khoa"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi tìm kiếm, sắp xếp, lọc, phân trang khoa", e.getMessage(), 10056);
         }
     }
 

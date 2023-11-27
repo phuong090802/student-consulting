@@ -1,6 +1,7 @@
 package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Field;
+import com.ute.studentconsulting.exception.ServerException;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
 import com.ute.studentconsulting.service.DepartmentService;
 import com.ute.studentconsulting.utility.AuthUtility;
@@ -36,9 +37,7 @@ public class FieldController {
             return handleGetFieldsByDepartmentId(id);
         } catch (Exception e) {
             log.error("Lỗi lấy lĩnh vực theo khoa: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy lĩnh vực theo khoa"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lấy lĩnh vực theo khoa", e.getMessage(), 10073);
         }
     }
 
@@ -60,9 +59,7 @@ public class FieldController {
             return handleGetMyFields(value, page, size, sort);
         } catch (Exception e) {
             log.error("Lỗi sắp xếp, tìm kiếm, phân trang lĩnh vực của khoa: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi sắp xếp, tìm kiếm, phân trang lĩnh vực của khoa"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi sắp xếp, tìm kiếm, phân trang lĩnh vực của khoa", e.getMessage(), 10074);
         }
     }
 
@@ -79,9 +76,7 @@ public class FieldController {
             return handleGetField(id);
         } catch (Exception e) {
             log.error("Lỗi tìm kiếm lĩnh vực: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi tìm kiếm lĩnh vực"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi tìm kiếm lĩnh vực", e.getMessage(), 10075);
         }
     }
 
@@ -100,9 +95,7 @@ public class FieldController {
             return handleGetFields(value, page, size, sort);
         } catch (Exception e) {
             log.error("Lỗi lọc, tìm kiếm, phân trang lĩnh vực: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lọc, tìm kiếm, phân trang lĩnh vực"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lọc, tìm kiếm, phân trang lĩnh vực", e.getMessage(), 10076);
         }
     }
 

@@ -2,16 +2,16 @@ package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Answer;
 import com.ute.studentconsulting.entity.Field;
+import com.ute.studentconsulting.entity.ForwardQuestion;
 import com.ute.studentconsulting.entity.Question;
+import com.ute.studentconsulting.exception.BadRequestException;
+import com.ute.studentconsulting.exception.ServerException;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.model.QuestionModel;
 import com.ute.studentconsulting.payloads.request.AnswerRequest;
 import com.ute.studentconsulting.payloads.response.ApiResponse;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
-import com.ute.studentconsulting.service.AnswerService;
-import com.ute.studentconsulting.service.DepartmentService;
-import com.ute.studentconsulting.service.FieldService;
-import com.ute.studentconsulting.service.QuestionService;
+import com.ute.studentconsulting.service.*;
 import com.ute.studentconsulting.utility.AuthUtility;
 import com.ute.studentconsulting.utility.QuestionUtility;
 import com.ute.studentconsulting.utility.SortUtility;
@@ -39,6 +39,7 @@ public class StaffController {
     private final QuestionUtility questionUtility;
     private final AnswerService answerService;
     private final DepartmentService departmentService;
+    private final ForwardQuestionService forwardQuestionService;
 
     @PatchMapping("/questions/{questionId}/departments/{departmentId}")
     public ResponseEntity<?> forwardQuestion(
@@ -49,26 +50,21 @@ public class StaffController {
             return handleForwardQuestion(questionId, departmentId);
         } catch (Exception e) {
             log.error("Chuyển tiếp câu hỏi bị lỗi: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Chuyển tiếp câu hỏi bị lỗi"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Chuyển tiếp câu hỏi bị lỗi", e.getMessage(), 10078);
         }
     }
 
     private ResponseEntity<?> handleForwardQuestion(String questionId, String departmentId) {
         var question = questionService.findById(questionId);
-        var department = departmentService.findById(departmentId);
-        var ids = department.getFields().stream().map(Field::getId).toList();
+        var fromDepartment = question.getDepartment();
+        var toDepartment = departmentService.findById(departmentId);
+        var ids = toDepartment.getFields().stream().map(Field::getId).toList();
         if (!ids.contains(question.getField().getId())) {
-            return new ResponseEntity<>(
-                    new MessageResponse(
-                            false,
-                            "Phòng ban nhận câu hỏi chuyển tiếp không hỗ trợ lĩnh vực này"),
-                    HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Phòng ban mới không hỗ trợ lĩnh vực này", "Phòng ban nhận câu hỏi chuyển tiếp không hỗ trợ lĩnh vực này", 10079);
         }
-        question.setDepartment(department);
-        question.setForwarded(true);
+        question.setDepartment(toDepartment);
         questionService.save(question);
+        forwardQuestionService.save(new ForwardQuestion(fromDepartment, toDepartment, question));
         return ResponseEntity.ok(
                 new MessageResponse(true, "Chuyển tiếp câu hỏi thành công"));
     }
@@ -79,9 +75,7 @@ public class StaffController {
             return handleGetQuestionById(id);
         } catch (Exception e) {
             log.error("Lỗi lấy câu hỏi bằng id: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy câu hỏi bằng id"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lấy câu hỏi bằng id", e.getMessage(), 10080);
         }
     }
 
@@ -107,23 +101,16 @@ public class StaffController {
             return handleAnswerQuestion(request);
         } catch (Exception e) {
             log.error("Lỗi trả lời câu hỏi: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi trả lời câu hỏi"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi trả lời câu hỏi", e.getMessage(), 10081);
         }
     }
 
     private ResponseEntity<?> handleAnswerQuestion(AnswerRequest request) {
         var staff = authUtility.getCurrentUser();
         var question = questionService.findById(request.getQuestionId());
-        var answer = new Answer(true, new Date(), true, staff, question);
-        if (!request.getIsPrivate()) {
-            answer.setIsPrivate(false);
-            answer.setApproved(false);
-            answer.setContent(request.getContent());
-        }
+        var answer = new Answer(request.getContent(), new Date(), false, staff, question);
         answerService.save(answer);
-        question.setStatus(true);
+        question.setStatus(1);
         questionService.save(question);
         return new ResponseEntity<>(
                 new MessageResponse(true, "Trả lời câu hỏi thành công"),
@@ -138,9 +125,7 @@ public class StaffController {
             return handleGetCheckHadQuestion(value);
         } catch (Exception e) {
             log.error("Lỗi tư vấn viên kiểm tra có câu hỏi chưa trả lời: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi tư vấn viên kiểm tra có câu hỏi chưa trả lời"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi tư vấn viên kiểm tra có câu hỏi chưa trả lời", e.getMessage(), 10082);
         }
     }
 
@@ -149,10 +134,10 @@ public class StaffController {
         if (value.equals("all")) {
             var staff = authUtility.getCurrentUser();
             var ids = staff.getFields().stream().map(Field::getId).toList();
-            hadQuestions = questionService.existsByStatusIsAndFieldIdIn(false, ids);
+            hadQuestions = questionService.existsByStatusIsAndFieldIdIn(0, ids);
         } else {
             var field = fieldService.findById(value);
-            hadQuestions = questionService.existsByStatusIsAndFieldIs(false, field);
+            hadQuestions = questionService.existsByStatusIsAndFieldIs(0, field);
         }
         return ResponseEntity.ok(new ApiResponse<>(true, hadQuestions));
     }
@@ -169,9 +154,7 @@ public class StaffController {
             return handleGetQuestions(value, page, size, sort);
         } catch (Exception e) {
             log.error("Lỗi lọc, phân trang câu hỏi: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lọc, phân trang câu hỏi"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lọc, phân trang câu hỏi", e.getMessage(), 10083);
         }
     }
 
@@ -182,10 +165,10 @@ public class StaffController {
         Page<Question> questionPage;
         if (value.equals("all")) {
             var ids = staff.getFields().stream().map(Field::getId).toList();
-            questionPage = questionService.findByStatusIsAndFieldIdIn(false, ids, pageable);
+            questionPage = questionService.findByStatusIsAndFieldIdIn(0, ids, pageable);
         } else {
             var field = fieldService.findById(value);
-            questionPage = questionService.findByStatusIsAndFieldIs(false, field, pageable);
+            questionPage = questionService.findByStatusIsAndFieldIs(0, field, pageable);
         }
         var questions = questionUtility.mapQuestionPageToQuestionModels(questionPage);
         var response =
@@ -203,9 +186,7 @@ public class StaffController {
             return handleGetFieldsInMyDepartment();
         } catch (Exception e) {
             log.error("Lỗi lấy lĩnh vực của ban thân: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy lĩnh vực của ban thân"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lấy lĩnh vực của ban thân", e.getMessage(), 10084);
         }
     }
 

@@ -43,4 +43,32 @@ public class Department {
             joinColumns = @JoinColumn(name = "department_id"),
             inverseJoinColumns = @JoinColumn(name = "field_id"))
     private Set<Field> fields = new HashSet<>();
+
+    @OneToMany(mappedBy = "department", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<Question> questions = new HashSet<>();
+
+    @OneToMany(mappedBy = "fromDepartment", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<ForwardQuestion> forwardQuestions = new HashSet<>();
+
+    @OneToMany(mappedBy = "toDepartment", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<ForwardQuestion> receiveQuestions = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "Department{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                '}';
+    }
 }

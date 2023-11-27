@@ -13,13 +13,13 @@ import java.util.Collection;
 
 public interface QuestionRepository extends JpaRepository<Question, String> {
 
-    Page<Question> findByStatusIsAndFieldIs(Boolean status, Field field, Pageable pageable);
+    Page<Question> findByStatusIsAndFieldIs(Integer status, Field field, Pageable pageable);
 
-    Page<Question> findByStatusIsAndFieldIdIn(Boolean status, Collection<String> ids, Pageable pageable);
+    Page<Question> findByStatusIsAndFieldIdIn(Integer status, Collection<String> ids, Pageable pageable);
 
-    Boolean existsByStatusIsAndFieldIdIn(Boolean status, Collection<String> ids);
+    Boolean existsByStatusIsAndFieldIdIn(Integer status, Collection<String> ids);
 
-    Boolean existsByStatusIsAndFieldIs(Boolean status, Field field);
+    Boolean existsByStatusIsAndFieldIs(Integer status, Field field);
 
     Page<Question> findAllByDepartmentIsAndFieldIs(Department department, Field field, Pageable pageable);
 

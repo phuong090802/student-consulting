@@ -1,7 +1,7 @@
 package com.ute.studentconsulting.utility;
 
 import com.ute.studentconsulting.entity.User;
-import com.ute.studentconsulting.exception.AppException;
+import com.ute.studentconsulting.exception.UnauthorizedException;
 import com.ute.studentconsulting.security.service.impl.UserDetailsImpl;
 import com.ute.studentconsulting.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +20,6 @@ public class AuthUtility {
         if (!Objects.equals(principal.toString(), "anonymousUser")) {
             return userService.findById(((UserDetailsImpl) principal).getId());
         }
-        throw new AppException("Lỗi lấy người dùng hiện tại");
+        throw new UnauthorizedException("Lỗi lấy người dùng hiện tại", "Lỗi lấy người dùng hiện tại thông qua token", 10012);
     }
 }

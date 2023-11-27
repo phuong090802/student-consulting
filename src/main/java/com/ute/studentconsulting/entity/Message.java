@@ -13,31 +13,40 @@ import java.util.Date;
 @Table(name = "messages")
 public class Message {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
     private String id;
 
     @Column(name = "content")
     private String content;
 
-    @Column(name = "date")
-    private Date date;
+    @Column(name = "send_at")
+    private Date sendAt;
 
-    @Column(name = "read")
-    private Boolean read;
+    @Column(name = "seen")
+    private Boolean seen;
+
+    @ManyToOne(cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    @JoinColumn(name = "conversation_id")
+    private Conversation conversation;
 
     @OneToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    @JoinColumn(name = "answer_id")
-    private Answer answer;
-
-    @OneToOne(cascade = {
-            CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH
-    })
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "sender_id")
     private User user;
 
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id='" + id + '\'' +
+                ", content='" + content + '\'' +
+                ", sendAt=" + sendAt +
+                ", seen=" + seen +
+                '}';
+    }
 }

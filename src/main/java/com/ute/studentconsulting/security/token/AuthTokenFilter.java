@@ -1,5 +1,6 @@
 package com.ute.studentconsulting.security.token;
 
+import com.ute.studentconsulting.exception.UnauthorizedException;
 import com.ute.studentconsulting.security.service.impl.UserDetailsServiceImpl;
 import io.micrometer.common.lang.NonNullApi;
 import jakarta.servlet.FilterChain;
@@ -40,6 +41,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             log.error("Lỗi không thể authorization người dùng: {}", e.getMessage());
+            throw new UnauthorizedException("Lỗi không thể authorization người dùng", e.getMessage(), 10090);
         }
         filterChain.doFilter(request, response);
     }

@@ -8,7 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 public class AnswerRequest {
 
-    private Boolean isPrivate;
     private String content;
     private String questionId;
 

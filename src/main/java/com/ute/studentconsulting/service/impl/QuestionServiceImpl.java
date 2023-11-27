@@ -38,7 +38,8 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public Question findById(String id) {
         return questionRepository.findById(id)
-                .orElseThrow(() -> new QuestionException("Không tìm thấy câu hỏi"));
+                .orElseThrow(() -> new QuestionException("Không tìm thấy câu hỏi",
+                        "Không tìm thấy câu hỏi với id: " + id, 10004));
     }
 
     @Override
@@ -56,7 +57,7 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public Page<Question> findByStatusIsAndFieldIs(Boolean status, Field field, Pageable pageable) {
+    public Page<Question> findByStatusIsAndFieldIs(int status, Field field, Pageable pageable) {
         return questionRepository.findByStatusIsAndFieldIs(status, field, pageable);
     }
 
@@ -67,20 +68,20 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public Page<Question> findByStatusIsAndFieldIdIn(Boolean status, Collection<String> ids, Pageable pageable) {
+    public Page<Question> findByStatusIsAndFieldIdIn(int status, Collection<String> ids, Pageable pageable) {
         return questionRepository
                 .findByStatusIsAndFieldIdIn(status, ids, pageable);
     }
 
 
     @Override
-    public boolean existsByStatusIsAndFieldIdIn(Boolean status, Collection<String> ids) {
+    public boolean existsByStatusIsAndFieldIdIn(int status, Collection<String> ids) {
         return questionRepository
                 .existsByStatusIsAndFieldIdIn(status, ids);
     }
 
     @Override
-    public boolean existsByStatusIsAndFieldIs(Boolean status, Field field) {
+    public boolean existsByStatusIsAndFieldIs(int status, Field field) {
         return questionRepository
                 .existsByStatusIsAndFieldIs(status, field);
     }

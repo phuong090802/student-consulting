@@ -1,14 +1,18 @@
 package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.*;
-import com.ute.studentconsulting.exception.AppException;
+import com.ute.studentconsulting.exception.BadRequestException;
+import com.ute.studentconsulting.exception.ServerException;
 import com.ute.studentconsulting.model.CounsellorModel;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.payloads.UserPayload;
 import com.ute.studentconsulting.payloads.response.ApiResponse;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
 import com.ute.studentconsulting.service.*;
-import com.ute.studentconsulting.utility.*;
+import com.ute.studentconsulting.utility.AuthUtility;
+import com.ute.studentconsulting.utility.QuestionUtility;
+import com.ute.studentconsulting.utility.SortUtility;
+import com.ute.studentconsulting.utility.UserUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -52,9 +56,7 @@ public class DepartmentHeadController {
             return handleGetQuestions(value, page, size, sort);
         } catch (Exception e) {
             log.error("Lỗi lọc, phân trang câu hỏi: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lọc, phân trang câu hỏi"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lọc, phân trang câu hỏi", e.getMessage(), 10057);
         }
     }
 
@@ -65,10 +67,10 @@ public class DepartmentHeadController {
         Page<Question> questionPage;
         if (value.equals("all")) {
             var ids = departmentHead.getDepartment().getFields().stream().map(Field::getId).toList();
-            questionPage = questionService.findByStatusIsAndFieldIdIn(false, ids, pageable);
+            questionPage = questionService.findByStatusIsAndFieldIdIn(0, ids, pageable);
         } else {
             var field = fieldService.findById(value);
-            questionPage = questionService.findByStatusIsAndFieldIs(false, field, pageable);
+            questionPage = questionService.findByStatusIsAndFieldIs(0, field, pageable);
         }
         var questions = questionUtility.mapQuestionPageToQuestionModels(questionPage);
         var response =
@@ -87,9 +89,7 @@ public class DepartmentHeadController {
             return handleDeleteFieldOfUser(userId, fieldId);
         } catch (Exception e) {
             log.error("Lỗi xóa lĩnh vực của người dùng: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi xóa lĩnh vực của người dùng"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi xóa lĩnh vực của người dùng", e.getMessage(), 10058);
         }
     }
 
@@ -110,9 +110,7 @@ public class DepartmentHeadController {
             return handleAddFieldsToUser(userId, fieldIds);
         } catch (Exception e) {
             log.error("Lỗi lĩnh vực cho tư vấn viên: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lĩnh vực cho tư vấn viên"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lĩnh vực cho tư vấn viên", e.getMessage(), 10059);
         }
     }
 
@@ -123,14 +121,11 @@ public class DepartmentHeadController {
 
     private ResponseEntity<?> handleAddFieldsToEntity(Object entity, Map<String, List<String>> fieldIds) {
         if (!(entity instanceof Department) && !(entity instanceof User)) {
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thêm lĩnh vực cho khoa/tư vấn viên. " +
-                            "Đối tượng truyền vào không phải là một thể hiện của Department/User"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BadRequestException("Lỗi thêm lĩnh vực cho khoa/tư vấn viên",
+                    "Đối tượng truyền vào không phải là một thể hiện của Department/User", 10060);
         }
-
         if (fieldIds == null || !fieldIds.containsKey("ids")) {
-            return new ResponseEntity<>(new MessageResponse(false, "Danh sách lĩnh vực không hợp lệ"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Danh sách lĩnh vực không hợp lệ", "Danh sách lĩnh vực không tồn tại hoặc không", 10061);
         }
         var ids = fieldIds.get("ids");
         var entityFields = new ArrayList<>(ids);
@@ -157,9 +152,7 @@ public class DepartmentHeadController {
             return handleGetFieldsNoneUser(id);
         } catch (Exception e) {
             log.error("Lỗi lấy vực chưa tồn tại của nhân viên: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy vực chưa tồn tại của nhân viên"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lấy vực chưa tồn tại của nhân viên", e.getMessage(), 10062);
         }
     }
 
@@ -169,9 +162,7 @@ public class DepartmentHeadController {
             return handleGetFieldsNoneDepartment();
         } catch (Exception e) {
             log.error("Lỗi lấy vực chưa tồn tại của phòng ban: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy vực chưa tồn tại của phòng ban"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lấy vực chưa tồn tại của phòng ban", e.getMessage(), 10063);
         }
     }
 
@@ -201,9 +192,7 @@ public class DepartmentHeadController {
             return handleGetCounsellorInMyDepartment(id);
         } catch (Exception e) {
             log.error("Lỗi xem thông tin nhân viên: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi xem thông tin nhân viên"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi xem thông tin nhân viên", e.getMessage(), 10064);
         }
     }
 
@@ -229,9 +218,7 @@ public class DepartmentHeadController {
             return handleGetFieldsInMyDepartment();
         } catch (Exception e) {
             log.error("Lỗi lấy lĩnh vực: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi lấy lĩnh vực"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi lấy lĩnh vực", e.getMessage(), 10065);
         }
     }
 
@@ -249,9 +236,7 @@ public class DepartmentHeadController {
             return handleDeleteFieldOfDepartment(id);
         } catch (Exception e) {
             log.error("Lỗi xóa lĩnh vực khỏi khoa: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi xóa lĩnh vực khỏi khoa"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi xóa lĩnh vực khỏi khoa", e.getMessage(), 10066);
         }
     }
 
@@ -267,8 +252,8 @@ public class DepartmentHeadController {
 
     private List<String> getIds(Object entity, String fieldId) {
         if (!(entity instanceof Department) && !(entity instanceof User)) {
-            throw new AppException(
-                    "Lỗi xóa lĩnh vực cho khoa/tư vấn viên. Đối tượng truyền vào không phải là một thể hiện của Department/User");
+            throw new BadRequestException("Lỗi thêm lĩnh vực cho khoa/tư vấn viên",
+                    "Đối tượng truyền vào không phải là một thể hiện của Department/User", 10060);
         }
         if (entity instanceof User user) {
             return user.getFields().stream().map(Field::getId).filter(fid -> !fid.equals(fieldId)).toList();
@@ -285,9 +270,7 @@ public class DepartmentHeadController {
             return handlePatchAccessibilityUser(id);
         } catch (Exception e) {
             log.error("Lỗi khóa/mở khóa tài khoản: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi khóa/mở khóa tài khoản"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi khóa/mở khóa tài khoản", e.getMessage(), 10067);
         }
     }
 
@@ -296,7 +279,8 @@ public class DepartmentHeadController {
         var user = userService.findById(id);
         if (!user.getDepartment().equals(departmentHead.getDepartment())
                 || !user.getRole().getName().equals(RoleName.ROLE_COUNSELLOR)) {
-            return new ResponseEntity<>(new MessageResponse(false, "Lỗi vô hiệu hóa tài khoản không hợp lệ"), HttpStatus.FORBIDDEN);
+            throw new BadRequestException("Lỗi vô hiệu hóa tài khoản không hợp lệ",
+                    "Người dùng không nằm trong phòng ban hoặc không phải là tư vấn viên", 10068);
         }
         var enabled = !user.getEnabled();
         user.setEnabled(enabled);
@@ -313,9 +297,7 @@ public class DepartmentHeadController {
             return handleAddNewFieldToMyDepartment(fieldIds);
         } catch (Exception e) {
             log.error("Lỗi thêm vĩnh vực vào khoa: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thêm vĩnh vực vào khoa"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi thêm vĩnh vực vào khoa", e.getMessage(), 10069);
         }
     }
 
@@ -330,20 +312,15 @@ public class DepartmentHeadController {
             return handleCreateUser(request);
         } catch (Exception e) {
             log.error("Lỗi thêm người dùng: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi thêm người dùng"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi thêm người dùng", e.getMessage(), 10070);
         }
     }
 
     private ResponseEntity<?> handleCreateUser(UserPayload request) {
-        var error = userUtility.validationGrantAccount(request);
-        if (error != null) {
-            return new ResponseEntity<>(new MessageResponse(false, error.getMessage()), error.getStatus());
-        }
+        userUtility.validationGrantAccount(request);
 
         if (!request.getRole().equals("counsellor")) {
-            return new ResponseEntity<>(new MessageResponse(false, String.format("Quyền truy cập \"%s\" không hợp lệ", request.getRole())), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Quyền truy cập không hợp lệ", "Quyền truy cập " + request.getRole() + " không hợp lệ", 10071);
         }
 
         var role = roleService.findByName(RoleName.ROLE_COUNSELLOR);
@@ -372,9 +349,8 @@ public class DepartmentHeadController {
             return handleGetUsersInDepartment(value, page, size, sort, status);
         } catch (Exception e) {
             log.error("Lỗi sắp xếp, tìm kiếm, lọc, phân trang người dùng trong khoa: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi sắp xếp, tìm kiếm, lọc, phân trang người dùng trong khoa"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi sắp xếp, tìm kiếm, lọc, phân trang người dùng trong khoa", e.getMessage(), 10072);
+
         }
     }
 

@@ -1,6 +1,7 @@
 package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Question;
+import com.ute.studentconsulting.exception.ServerException;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.model.QuestionDetailsModel;
 import com.ute.studentconsulting.payloads.response.ApiResponse;
@@ -48,9 +49,7 @@ public class QuestionController {
             return handleGetQuestions(value, page, size, sort, departmentId, fieldId);
         } catch (Exception e) {
             log.error("Lỗi sắp xếp, lọc, phân trang ,tìm kiếm câu hỏi: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi sắp xếp, lọc, phân trang ,tìm kiếm câu hỏi"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi sắp xếp, lọc, phân trang ,tìm kiếm câu hỏi", e.getMessage(), 10077);
         }
     }
 

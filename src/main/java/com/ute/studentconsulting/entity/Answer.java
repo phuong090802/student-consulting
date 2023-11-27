@@ -19,9 +19,6 @@ public class Answer {
     private String id;
 
     @NonNull
-    @Column(name = "is_private")
-    private Boolean isPrivate;
-
     @Column(name = "content")
     private String content;
 
@@ -34,7 +31,7 @@ public class Answer {
     private Boolean approved;
 
     @NonNull
-    @OneToOne(cascade = {
+    @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
@@ -48,4 +45,14 @@ public class Answer {
     })
     @JoinColumn(name = "question_id")
     private Question question;
+
+    @Override
+    public String toString() {
+        return "Answer{" +
+                "id='" + id + '\'' +
+                ", content='" + content + '\'' +
+                ", date=" + date +
+                ", approved=" + approved +
+                '}';
+    }
 }

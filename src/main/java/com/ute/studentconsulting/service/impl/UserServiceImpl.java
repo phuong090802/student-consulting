@@ -28,7 +28,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByPhone(String phone) {
         return userRepository.findByPhone(phone)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng",
+                        "Không tìm thấy người dùng với số điện thoại: " + phone,
+                        1006));
     }
 
     @Override
@@ -44,7 +46,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(String id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng",
+                        "Không tìm thấy người dùng với id: " + id, 10007));
     }
 
     @Override
@@ -132,7 +135,9 @@ public class UserServiceImpl implements UserService {
     public User findByIdAndRoleIsNot(String id, Role admin) {
         return userRepository
                 .findByIdAndRoleIsNot(id, admin)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng",
+                        "Không tìm thấy người dùng với id: " + id + " với role không phải là role: " + admin.toString(),
+                        10008));
     }
 
     @Override
@@ -160,7 +165,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByIdAndDepartmentIs(String id, Department department) {
         return userRepository.findByIdAndDepartmentIs(id, department)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
+                .orElseThrow(() ->
+                        new UserException("Không tìm thấy người dùng",
+                                "Không tìm thấy người dùng với id: " + id + " ở phòng ban: " + department.toString(), 10009));
     }
 
     @Override
@@ -180,7 +187,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByIdAndEnabledIsTrue(String id) {
         return userRepository.findByIdAndEnabledIsTrue(id)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng"));
+                .orElseThrow(() -> new UserException("Không tìm thấy người dùng",
+                        "Không tìm thấy người dùng với trạng thái hoạt động và id là: " + id,
+                        10010));
     }
 
     @Override

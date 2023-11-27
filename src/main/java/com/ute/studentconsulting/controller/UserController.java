@@ -1,7 +1,8 @@
 package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Question;
-import com.ute.studentconsulting.model.ErrorModel;
+import com.ute.studentconsulting.exception.BadRequestException;
+import com.ute.studentconsulting.exception.ServerException;
 import com.ute.studentconsulting.payloads.QuestionPayload;
 import com.ute.studentconsulting.payloads.response.MessageResponse;
 import com.ute.studentconsulting.service.DepartmentService;
@@ -10,7 +11,6 @@ import com.ute.studentconsulting.service.QuestionService;
 import com.ute.studentconsulting.utility.AuthUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,18 +36,12 @@ public class UserController {
             return handleCreateQuestion(request);
         } catch (Exception e) {
             log.error("Lỗi đặt câu hỏi: {}", e.getMessage());
-            return new ResponseEntity<>(
-                    new MessageResponse(false, "Lỗi đặt câu hỏi"),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerException("Lỗi đặt câu hỏi", e.getMessage(), 10085);
         }
     }
 
     private ResponseEntity<?> handleCreateQuestion(QuestionPayload request) {
-        var error = validationQuestion(request);
-        if (error != null) {
-            return new ResponseEntity<>(new MessageResponse(false, error.getMessage()), error.getStatus());
-        }
-
+        validationQuestion(request);
         var user = authUtility.getCurrentUser();
         var department = departmentService.findByIdAndStatusIsTrue(request.getDepartmentId());
         var field = fieldService.findById(request.getFieldId());
@@ -55,7 +49,7 @@ public class UserController {
                 request.getTitle(),
                 request.getContent(),
                 new Date(),
-                false,
+                0,
                 0,
                 user,
                 department,
@@ -67,26 +61,25 @@ public class UserController {
                 new MessageResponse(true, "Đặt câu hỏi thành công"));
     }
 
-    private ErrorModel validationQuestion(QuestionPayload request) {
+    private void validationQuestion(QuestionPayload request) {
         var title = request.getTitle().trim();
         if (title.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Tiêu đề không thể để trống");
+            throw new BadRequestException("Tiêu đề không thể để trống", "Tiêu đề được nhập trống", 10086);
         }
 
         var content = request.getContent().trim();
         if (content.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Nội dung không thể để trống");
+            throw new BadRequestException("Nội dung không thể để trống", "Nội dung được nhập trống", 10087);
         }
 
         var departmentId = request.getDepartmentId().trim();
         if (departmentId.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Khoa không thể để trống");
+            throw new BadRequestException("Khoa không thể để trống", "Khoa được nhập trống", 10088);
         }
 
         var fieldId = request.getFieldId().trim();
         if (fieldId.isEmpty()) {
-            return new ErrorModel(HttpStatus.BAD_REQUEST, "Lĩnh vực không thể để trống");
+            throw new BadRequestException("Lĩnh vực không thể để trống", "Lĩnh vực được nhập trống", 10089);
         }
-        return null;
     }
 }

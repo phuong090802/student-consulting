@@ -9,11 +9,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserException extends RuntimeException {
+public class ConflictException extends RuntimeException {
     private String detail;
     private int code;
 
-    public UserException(String message, String detail, int code) {
+    public ConflictException(String message, String detail, int code) {
         super(message);
         this.detail = detail;
         this.code = code;

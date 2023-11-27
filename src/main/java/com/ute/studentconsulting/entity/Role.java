@@ -1,8 +1,12 @@
 package com.ute.studentconsulting.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -22,10 +26,17 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleName name;
 
-    @OneToMany(mappedBy = "role",
-            cascade = {
-                    CascadeType.PERSIST, CascadeType.MERGE,
-                    CascadeType.DETACH, CascadeType.REFRESH
-            })
-    private Set<User> users;
+    @OneToMany(mappedBy = "role", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<User> users = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "id=" + id +
+                ", name=" + name +
+                '}';
+    }
 }

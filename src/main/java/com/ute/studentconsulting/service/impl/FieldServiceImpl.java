@@ -57,7 +57,10 @@ public class FieldServiceImpl implements FieldService {
     @Override
     public Field findById(String id) {
         return fieldRepository.findById(id)
-                .orElseThrow(() -> new FieldException("Không tìm thấy lĩnh vực"));
+                .orElseThrow(() -> new FieldException(
+                        "Không tìm thấy lĩnh vực",
+                        "Không tìm thấy lĩnh vực với id: " + id,
+                        10003));
     }
 
 

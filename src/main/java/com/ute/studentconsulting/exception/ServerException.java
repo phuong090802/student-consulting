@@ -1,19 +1,16 @@
 package com.ute.studentconsulting.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserException extends RuntimeException {
+public class ServerException extends RuntimeException {
     private String detail;
     private int code;
 
-    public UserException(String message, String detail, int code) {
+    public ServerException(String message, String detail, int code) {
         super(message);
         this.detail = detail;
         this.code = code;

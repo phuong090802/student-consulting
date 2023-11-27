@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,10 +34,7 @@ public class Question {
 
     @NonNull
     @Column(name = "status")
-    private Boolean status;
-
-    @Column(name = "forwarded")
-    private Boolean forwarded;
+    private Integer status;
 
     @NonNull
     @Column(name = "views")
@@ -50,7 +49,7 @@ public class Question {
     private User user;
 
     @NonNull
-    @OneToOne(cascade = {
+    @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
@@ -58,18 +57,31 @@ public class Question {
     private Department department;
 
     @NonNull
-    @OneToOne(cascade = {
+    @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
     @JoinColumn(name = "field_id")
     private Field field;
 
-    @OneToOne(mappedBy = "question",
-            cascade = {
-                    CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH
-            })
+    @OneToOne(mappedBy = "question", cascade = CascadeType.ALL)
     private Answer answer;
 
+    @OneToMany(mappedBy = "question", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<ForwardQuestion> forwardQuestions = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "Question{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", date=" + date +
+                ", status=" + status +
+                ", views=" + views +
+                '}';
+    }
 }

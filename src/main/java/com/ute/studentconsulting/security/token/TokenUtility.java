@@ -3,7 +3,7 @@ package com.ute.studentconsulting.security.token;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ute.studentconsulting.entity.RefreshToken;
-import com.ute.studentconsulting.exception.AppException;
+import com.ute.studentconsulting.exception.ServerException;
 import com.ute.studentconsulting.model.TokenModel;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -119,7 +119,7 @@ public class TokenUtility {
                     true);
         } catch (JsonProcessingException e) {
             log.error("Lỗi mã hóa token object thành JSON: {}", e.getMessage());
-            throw new AppException("Lỗi mã hóa token object thành JSON: " + e.getMessage());
+            throw new ServerException("Lỗi mã hóa token object thành JSON", e.getMessage(), 10011);
         }
 
     }

@@ -3,7 +3,9 @@ package com.ute.studentconsulting.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,8 +34,7 @@ public class RefreshToken {
     @JoinColumn(name = "parent")
     private RefreshToken parent;
 
-    @OneToMany(mappedBy = "parent",
-            cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RefreshToken> children = new HashSet<>();
 
     @ManyToOne(cascade = {
@@ -42,4 +43,13 @@ public class RefreshToken {
     })
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Override
+    public String toString() {
+        return "RefreshToken{" +
+                "token='" + token + '\'' +
+                ", expires=" + expires +
+                ", status=" + status +
+                '}';
+    }
 }
