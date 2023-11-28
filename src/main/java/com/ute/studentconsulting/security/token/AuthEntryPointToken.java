@@ -1,7 +1,7 @@
 package com.ute.studentconsulting.security.token;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ute.studentconsulting.payloads.response.ErrorResponse;
+import com.ute.studentconsulting.payload.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

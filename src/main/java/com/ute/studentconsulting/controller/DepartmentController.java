@@ -2,11 +2,11 @@ package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.model.PaginationModel;
-import com.ute.studentconsulting.payloads.response.ApiSuccessResponse;
+import com.ute.studentconsulting.payload.response.ApiSuccessResponse;
 import com.ute.studentconsulting.service.DepartmentService;
-import com.ute.studentconsulting.utils.AuthUtils;
-import com.ute.studentconsulting.utils.FieldUtils;
-import com.ute.studentconsulting.utils.SortUtils;
+import com.ute.studentconsulting.util.AuthUtils;
+import com.ute.studentconsulting.util.FieldUtils;
+import com.ute.studentconsulting.util.SortUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

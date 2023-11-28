@@ -1,4 +1,4 @@
-package com.ute.studentconsulting.utils;
+package com.ute.studentconsulting.util;
 
 import com.ute.studentconsulting.entity.User;
 import com.ute.studentconsulting.exception.UnauthorizedException;

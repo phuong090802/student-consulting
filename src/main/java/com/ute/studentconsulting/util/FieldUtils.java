@@ -1,7 +1,7 @@
-package com.ute.studentconsulting.utils;
+package com.ute.studentconsulting.util;
 
 import com.ute.studentconsulting.model.PaginationModel;
-import com.ute.studentconsulting.payloads.response.ApiSuccessResponse;
+import com.ute.studentconsulting.payload.response.ApiSuccessResponse;
 import com.ute.studentconsulting.service.FieldService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;

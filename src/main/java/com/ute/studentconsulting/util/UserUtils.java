@@ -1,11 +1,11 @@
-package com.ute.studentconsulting.utils;
+package com.ute.studentconsulting.util;
 
 import com.ute.studentconsulting.entity.User;
 import com.ute.studentconsulting.exception.BadRequestException;
 import com.ute.studentconsulting.exception.ConflictException;
 import com.ute.studentconsulting.model.StaffModel;
 import com.ute.studentconsulting.model.UserModel;
-import com.ute.studentconsulting.payloads.UserPayload;
+import com.ute.studentconsulting.payload.UserPayload;
 import com.ute.studentconsulting.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

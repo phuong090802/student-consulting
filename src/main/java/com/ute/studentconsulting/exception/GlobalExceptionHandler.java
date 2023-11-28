@@ -1,6 +1,6 @@
 package com.ute.studentconsulting.exception;
 
-import com.ute.studentconsulting.payloads.response.ErrorResponse;
+import com.ute.studentconsulting.payload.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

@@ -5,6 +5,7 @@ import com.ute.studentconsulting.security.token.AuthAccessDenied;
 import com.ute.studentconsulting.security.token.AuthEntryPointToken;
 import com.ute.studentconsulting.security.token.AuthTokenFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +35,12 @@ public class WebSecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointToken unauthorizedHandler;
     private final AuthAccessDenied accessDeniedHandler;
+    @Value("${frontend.local.url}")
+    private String localFrontendUrl;
+
+    @Value("${frontend.deployed.url}")
+    private String deployedFrontendUrl;
+
     @Bean
     public AuthTokenFilter authenticationAccessTokenFilter() {
         return new AuthTokenFilter();
@@ -62,7 +69,7 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of("https://tvsv-one.vercel.app/", "http://localhost:5173/"));
+        configuration.setAllowedOrigins(List.of(localFrontendUrl, deployedFrontendUrl));
         configuration.setAllowedMethods(List.of(
                 HttpMethod.GET.name(),
                 HttpMethod.POST.name(),

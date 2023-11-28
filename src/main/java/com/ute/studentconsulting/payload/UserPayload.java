@@ -1,4 +1,4 @@
-package com.ute.studentconsulting.payloads;
+package com.ute.studentconsulting.payload;
 
 import lombok.*;
 

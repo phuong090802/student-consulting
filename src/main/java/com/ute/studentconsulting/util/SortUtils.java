@@ -1,4 +1,4 @@
-package com.ute.studentconsulting.utils;
+package com.ute.studentconsulting.util;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;

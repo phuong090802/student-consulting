@@ -19,7 +19,13 @@ student-consulting:
     refresh-token-expires-ms: 604800000
     cookie-name: refreshToken
 
-  #firebase:
-    #configuration-file: ./serviceAccountKey.json
-    #bucket: student-consulting-c6397.appspot.com
+#firebase:
+  #configuration-file: ./serviceAccountKey.json
+  #bucket: student-consulting-c6397.appspot.com
+
+frontend:
+  local:
+    url: http://localhost:5173
+  deployed:
+    url: https://tvsv-one.vercel.app
 
