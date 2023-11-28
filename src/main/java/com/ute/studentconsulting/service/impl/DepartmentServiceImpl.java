@@ -1,7 +1,7 @@
 package com.ute.studentconsulting.service.impl;
 
 import com.ute.studentconsulting.entity.Department;
-import com.ute.studentconsulting.exception.DepartmentException;
+import com.ute.studentconsulting.exception.NotFoundException;
 import com.ute.studentconsulting.repository.DepartmentRepository;
 import com.ute.studentconsulting.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +34,16 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String value, Pageable pageable) {
-        return departmentRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(value, value, pageable);
+    public Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase
+            (String value, Pageable pageable) {
+        return departmentRepository
+                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(value, value, pageable);
     }
 
     @Override
     public Department findById(String id) {
         return departmentRepository.findById(id)
-                .orElseThrow(() -> new DepartmentException(
+                .orElseThrow(() -> new NotFoundException(
                         "Không tìm thấy khoa",
                         "Không tìm thấy khoa với id: " + id, 10001));
     }
@@ -52,39 +54,30 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsTrue(String value, Pageable pageable) {
+    public Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIs
+            (String value, boolean status, Pageable pageable) {
         return departmentRepository
-                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsTrue(
-                        value, value, pageable);
+                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIs
+                        (value, status, pageable);
     }
 
-    @Override
-    public Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsFalse(String value, Pageable pageable) {
-        return departmentRepository
-                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsFalse
-                        (value, value, pageable);
-    }
 
     @Override
-    public Page<Department> findAllByStatusIsTrue(Pageable pageable) {
-        return departmentRepository.findAllByStatusIsTrue(pageable);
+    public Page<Department> findAllByStatusIs(boolean status, Pageable pageable) {
+        return departmentRepository.findAllByStatusIs(status, pageable);
     }
 
-    @Override
-    public Page<Department> findAllByStatusIsFalse(Pageable pageable) {
-        return departmentRepository.findAllByStatusIsFalse(pageable);
-    }
 
     @Override
-    public Department findByIdAndStatusIsTrue(String id) {
-        return departmentRepository.findByIdAndStatusIsTrue(id)
-                .orElseThrow(() -> new DepartmentException(
+    public Department findByIdAndStatusIs(String id, boolean status) {
+        return departmentRepository.findByIdAndStatusIs(id, status)
+                .orElseThrow(() -> new NotFoundException(
                         "Không tìm thấy khoa có trạng thái hoạt động",
                         "Không tìm thấy khoa có trạng thái hoạt động với id: " + id, 10002));
     }
 
     @Override
-    public List<Department> findAllByStatusIsTrue() {
-        return departmentRepository.findAllByStatusIsTrue();
+    public List<Department> findAllByStatusIs(boolean status) {
+        return departmentRepository.findAllByStatusIs(status);
     }
 }

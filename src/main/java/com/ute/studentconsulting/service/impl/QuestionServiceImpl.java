@@ -3,7 +3,7 @@ package com.ute.studentconsulting.service.impl;
 import com.ute.studentconsulting.entity.Department;
 import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.entity.Question;
-import com.ute.studentconsulting.exception.QuestionException;
+import com.ute.studentconsulting.exception.NotFoundException;
 import com.ute.studentconsulting.repository.QuestionRepository;
 import com.ute.studentconsulting.service.QuestionService;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +18,23 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class QuestionServiceImpl implements QuestionService {
     @Override
-    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIs(String value, Department department, Pageable pageable) {
+    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIs
+            (String value, Department department, Pageable pageable) {
         return questionRepository
-                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIs(value, department, pageable);
+                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIs
+                        (value, department, pageable);
     }
 
     @Override
-    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIs(String value, Field field, Pageable pageable) {
+    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIs
+            (String value, Field field, Pageable pageable) {
         return questionRepository
                 .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIs(value, field, pageable);
     }
 
     @Override
-    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String value, Pageable pageable) {
+    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase
+            (String value, Pageable pageable) {
         return questionRepository
                 .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(value, value, pageable);
     }
@@ -38,14 +42,16 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public Question findById(String id) {
         return questionRepository.findById(id)
-                .orElseThrow(() -> new QuestionException("Không tìm thấy câu hỏi",
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy câu hỏi",
                         "Không tìm thấy câu hỏi với id: " + id, 10004));
     }
 
     @Override
-    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIs(String value, Department department, Field field, Pageable pageable) {
-        return
-                questionRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIs(value, department, field, pageable);
+    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIs
+            (String value, Department department, Field field, Pageable pageable) {
+        return questionRepository
+                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIs
+                        (value, department, field, pageable);
     }
 
     private final QuestionRepository questionRepository;

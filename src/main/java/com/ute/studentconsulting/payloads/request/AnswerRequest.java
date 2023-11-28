@@ -7,7 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AnswerRequest {
-
     private String content;
     private String questionId;
 

@@ -1,4 +1,4 @@
-package com.ute.studentconsulting.utility;
+package com.ute.studentconsulting.utils;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class SortUtility {
+public class SortUtils {
     private Sort.Direction sortDirection(String direction) {
         if (direction.equals("desc")) {
             return Sort.Direction.DESC;

@@ -17,10 +17,10 @@ public class Message {
     @Column(name = "id")
     private String id;
 
-    @Column(name = "content")
-    private String content;
+    @Column(name = "message_text")
+    private String messageText;
 
-    @Column(name = "send_at")
+    @Column(name = "sent_at")
     private Date sendAt;
 
     @Column(name = "seen")
@@ -44,7 +44,7 @@ public class Message {
     public String toString() {
         return "Message{" +
                 "id='" + id + '\'' +
-                ", content='" + content + '\'' +
+                ", messageText='" + messageText + '\'' +
                 ", sendAt=" + sendAt +
                 ", seen=" + seen +
                 '}';

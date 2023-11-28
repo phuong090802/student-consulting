@@ -2,21 +2,19 @@ package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.*;
 import com.ute.studentconsulting.exception.BadRequestException;
-import com.ute.studentconsulting.exception.ServerException;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.model.StaffModel;
 import com.ute.studentconsulting.model.UserModel;
-import com.ute.studentconsulting.payloads.DepartmentPayload;
-import com.ute.studentconsulting.payloads.FieldPayload;
 import com.ute.studentconsulting.payloads.UserPayload;
-import com.ute.studentconsulting.payloads.response.ApiResponse;
-import com.ute.studentconsulting.payloads.response.MessageResponse;
+import com.ute.studentconsulting.payloads.response.ApiSuccessResponse;
+import com.ute.studentconsulting.payloads.response.ErrorResponse;
+import com.ute.studentconsulting.payloads.response.SuccessResponse;
 import com.ute.studentconsulting.service.DepartmentService;
 import com.ute.studentconsulting.service.FieldService;
 import com.ute.studentconsulting.service.RoleService;
 import com.ute.studentconsulting.service.UserService;
-import com.ute.studentconsulting.utility.SortUtility;
-import com.ute.studentconsulting.utility.UserUtility;
+import com.ute.studentconsulting.utils.SortUtils;
+import com.ute.studentconsulting.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -40,36 +38,26 @@ import java.util.Map;
 public class AdminController {
     private final DepartmentService departmentService;
     private final FieldService fieldService;
-    private final UserUtility userUtility;
+    private final UserUtils userUtils;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
-    private final SortUtility sortUtility;
+    private final SortUtils sortUtils;
 
     @GetMapping("/users/{id}/departments")
     public ResponseEntity<?> getDepartmentOfUser(
             @PathVariable("id") String userId) {
-        try {
-            return handleGetDepartmentOfUser(userId);
-        } catch (Exception e) {
-            log.error("Lỗi lấy phòng ban của người dùng: {}", e.getMessage());
-            throw new ServerException("Lỗi lấy phòng ban của người dùng", e.getMessage(), 10033);
-        }
+        return handleGetDepartmentOfUser(userId);
     }
 
     private ResponseEntity<?> handleGetDepartmentOfUser(String id) {
         var user = userService.findById(id);
         var department = user.getDepartment();
         if (department == null) {
-            throw new BadRequestException("Người dùng không nằm trong phòng ban nào cả", "Thông tin user: " + user, 10034);
+            throw new BadRequestException("Người dùng hiện không nằm trong phòng ban nào cả",
+                    "Người dùng: " + user + " hiện không nằm trong phòng ban nào cả", 10020);
         }
-        return ResponseEntity.ok(new ApiResponse<>(true,
-                new DepartmentPayload(
-                        department.getId(),
-                        department.getName(),
-                        department.getDescription(),
-                        department.getStatus()
-                )));
+        return ResponseEntity.ok(new ApiSuccessResponse<>(department));
     }
 
     @GetMapping("/users/department-is-null")
@@ -77,34 +65,23 @@ public class AdminController {
             @RequestParam(required = false, name = "value") String value,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "3") int size,
-            @RequestParam(defaultValue = "name, asc", name = "sort") String[] sort
-    ) {
-        try {
-            return handleGetCounsellorDepartmentIsNull(value, page, size, sort);
-        } catch (Exception e) {
-            log.error("Lỗi lấy danh sách tư vấn viên chưa có phòng ban: {}", e.getMessage());
-            throw new ServerException("Lỗi lấy danh sách tư vấn viên chưa có phòng ban", e.getMessage(), 10035);
-        }
+            @RequestParam(defaultValue = "name, asc", name = "sort") String[] sort) {
+        return handleGetCounsellorDepartmentIsNull(value, page, size, sort);
     }
 
     private ResponseEntity<?> handleGetCounsellorDepartmentIsNull(String value, int page, int size, String[] sort) {
         var roleCounsellor = roleService.findByName(RoleName.ROLE_COUNSELLOR);
-
-        var orders = sortUtility.sortOrders(sort);
+        var orders = sortUtils.sortOrders(sort);
         var pageable = PageRequest.of(page, size, Sort.by(orders));
         var userPage = (value == null) ?
-                userService.findAllByRoleIsAndDepartmentIsNullAndEnabledIsTrue(pageable, roleCounsellor)
-                : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIsTrue(
-                value, roleCounsellor, pageable
+                userService.findAllByRoleIsAndDepartmentIsNullAndEnabledIs(pageable, roleCounsellor, true)
+                : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIs(
+                value, roleCounsellor, true, pageable
         );
-        var staffs = userUtility.mapUserPageToStaffModels(userPage);
-        var response =
-                new PaginationModel<>(
-                        staffs,
-                        userPage.getNumber(),
-                        userPage.getTotalPages()
-                );
-        return ResponseEntity.ok(new ApiResponse<>(true, response));
+        var staffs = userUtils.mapUserPageToStaffModels(userPage);
+        var response = new PaginationModel<>(staffs,
+                userPage.getNumber(), userPage.getTotalPages());
+        return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
 
@@ -112,17 +89,11 @@ public class AdminController {
     public ResponseEntity<?> updateDepartmentHeadOfDepartment(
             @PathVariable("userId") String userId,
             @PathVariable("departmentId") String departmentId) {
-        try {
-            return handleUpdateDepartmentHeadOfDepartment(userId, departmentId);
-        } catch (Exception e) {
-            log.error("Lỗi thay đổi trưởng phòng ban: {}", e.getMessage());
-            throw new ServerException("Lỗi thay đổi trưởng phòng ban", e.getMessage(), 10036);
-
-        }
+        return handleUpdateDepartmentHeadOfDepartment(userId, departmentId);
     }
 
     private ResponseEntity<?> handleUpdateDepartmentHeadOfDepartment(String userId, String departmentId) {
-        var department = departmentService.findByIdAndStatusIsTrue(departmentId);
+        var department = departmentService.findByIdAndStatusIs(departmentId, true);
         var roleDepartmentHead = roleService.findByName(RoleName.ROLE_DEPARTMENT_HEAD);
         var oldDepartmentHead = userService.findByDepartmentAndRole(department, roleDepartmentHead);
         if (oldDepartmentHead != null) {
@@ -130,10 +101,10 @@ public class AdminController {
             oldDepartmentHead.setRole(roleCounsellor);
             userService.save(oldDepartmentHead);
         }
-        var newDepartmentHead = userService.findByIdAndEnabledIsTrue(userId);
+        var newDepartmentHead = userService.findByIdAndEnabledIs(userId, true);
         newDepartmentHead.setRole(roleDepartmentHead);
         userService.save(newDepartmentHead);
-        return ResponseEntity.ok(new MessageResponse(true, "Đổi trưởng phòng ban thành công"));
+        return ResponseEntity.ok(new SuccessResponse("Đổi trưởng phòng ban thành công"));
     }
 
     @GetMapping("/users/departments/{id}")
@@ -143,43 +114,33 @@ public class AdminController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "3") int size,
             @RequestParam(defaultValue = "name, asc", name = "sort") String[] sort) {
-        try {
-            return handleGetUsersInDepartment(id, value, page, size, sort);
-        } catch (Exception e) {
-            log.error("Lỗi lấy nhân viên trong phòng ban: {}", e.getMessage());
-            throw new ServerException("Lỗi lấy nhân viên trong phòng ban", e.getMessage(), 10037);
-        }
+        return handleGetUsersInDepartment(id, value, page, size, sort);
     }
 
     private ResponseEntity<?> handleGetUsersInDepartment(String id, String value, int page, int size, String[] sort) {
-        var department = departmentService.findByIdAndStatusIsTrue(id);
+        var department = departmentService.findByIdAndStatusIs(id, true);
         var roleDepartmentHead = roleService.findByName(RoleName.ROLE_DEPARTMENT_HEAD);
         var departmentHead = userService.findByDepartmentAndRole(department, roleDepartmentHead);
-        var orders = sortUtility.sortOrders(sort);
+        var orders = sortUtils.sortOrders(sort);
         var pageable = PageRequest.of(page, size, Sort.by(orders));
-
         Page<User> userPage;
         if (departmentHead != null) {
             userPage = (value == null) ?
-                    userService.findAllByDepartmentIsAndIdIsNotAndEnabledIsTrue(pageable, department, departmentHead.getId())
-                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue(
-                    value, department, departmentHead.getId(), pageable
+                    userService.findAllByDepartmentIsAndIdIsNotAndEnabledIs(pageable, department, departmentHead.getId(), true)
+                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIs(
+                    value, department, departmentHead.getId(), true, pageable
             );
         } else {
             userPage = (value == null) ?
-                    userService.findAllByDepartmentIsAndEnabledIsTrue(pageable, department)
-                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIsTrue(
-                    value, department, pageable
-            );
+                    userService.findAllByDepartmentIsAndEnabledIs(pageable, true, department)
+                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIs(
+                    value, department, true, pageable);
         }
 
-        var staffs = userUtility.mapUserPageToStaffModels(userPage);
-        var items =
-                new PaginationModel<>(
-                        staffs,
-                        userPage.getNumber(),
-                        userPage.getTotalPages()
-                );
+        var staffs = userUtils.mapUserPageToStaffModels(userPage);
+        var items = new PaginationModel<>(
+                staffs, userPage.getNumber(),
+                userPage.getTotalPages());
         var response = new HashMap<>();
         response.put("counsellor", items);
         response.put("departmentHead",
@@ -189,7 +150,7 @@ public class AdminController {
                         departmentHead.getEmail(),
                         departmentHead.getAvatar()
                 ) : null);
-        return ResponseEntity.ok(new ApiResponse<>(true, response));
+        return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
 
@@ -197,36 +158,25 @@ public class AdminController {
     public ResponseEntity<?> addUserToDepartment(
             @PathVariable("userId") String userId,
             @PathVariable("departmentId") String departmentId) {
-        try {
-            return handleAddUserToDepartment(userId, departmentId);
-        } catch (Exception e) {
-            log.error("Lỗi thêm tư vấn viên vào phòng ban: {}", e.getMessage());
-            throw new ServerException("Lỗi thêm tư vấn viên vào phòng ban", e.getMessage(), 10038);
-        }
+        return handleAddUserToDepartment(userId, departmentId);
     }
 
     private ResponseEntity<?> handleAddUserToDepartment(String userId, String departmentId) {
-        var department = departmentService.findByIdAndStatusIsTrue(departmentId);
+        var department = departmentService.findByIdAndStatusIs(departmentId, true);
         var user = userService.findById(userId);
         if (user.getRole().getName().equals(RoleName.ROLE_COUNSELLOR)) {
             user.setDepartment(department);
             userService.save(user);
-            return ResponseEntity.ok(new MessageResponse(true, "Thêm tư vấn viên vào phòng ban thành công"));
+            return ResponseEntity.ok(new SuccessResponse("Thêm tư vấn viên vào phòng ban thành công"));
         }
-        throw new ServerException("Lỗi thêm tư vấn viên vào phòng ban",
-                "Lỗi người được thêm vào phòng ban không phải là tư vấn viên, thông tin người dùng: " + user, 10039);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Lỗi thêm tư vấn viên vào phòng ban",
+                "Lỗi người được thêm vào phòng ban không phải là tư vấn viên, thông tin người dùng: " + user, 10021));
     }
 
 
     @PatchMapping("/users/{id}")
     public ResponseEntity<?> patchAccessibilityUser(@PathVariable("id") String id) {
-        try {
-            return handlePatchAccessibilityUser(id);
-        } catch (Exception e) {
-            log.error("Lỗi khóa/mở khóa tài khoản: {}", e.getMessage());
-            throw new ServerException("Lỗi khóa/mở khóa tài khoản", e.getMessage(), 10040);
-
-        }
+        return handlePatchAccessibilityUser(id);
     }
 
     private ResponseEntity<?> handlePatchAccessibilityUser(String id) {
@@ -234,34 +184,23 @@ public class AdminController {
         var enabled = !user.getEnabled();
         user.setEnabled(enabled);
         userService.save(user);
-        return new ResponseEntity<>(
-                new ApiResponse<>(true, enabled),
-                HttpStatus.OK);
+        return ResponseEntity.ok(new ApiSuccessResponse<>(enabled));
     }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUser(@PathVariable("id") String id) {
-        try {
-            return handleGetUser(id);
-        } catch (Exception e) {
-            log.error("Lỗi tìm kiếm người dùng: {}", e.getMessage());
-            throw new ServerException("Lỗi tìm kiếm người dùng", e.getMessage(), 10041);
-        }
+        return handleGetUser(id);
     }
 
 
     private ResponseEntity<?> handleGetUser(String id) {
         var admin = roleService.findByName(RoleName.ROLE_ADMIN);
         var user = userService.findByIdAndRoleIsNot(id, admin);
-        return ResponseEntity.ok(new ApiResponse<>(true, new UserModel(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPhone(),
-                user.getAvatar(),
-                user.getEnabled(),
-                user.getOccupation(),
-                user.getRole().getName().name())));
+        return ResponseEntity.ok(new ApiSuccessResponse<>(new UserModel(
+                user.getId(), user.getName(),
+                user.getEmail(), user.getPhone(),
+                user.getAvatar(), user.getEnabled(),
+                user.getOccupation(), user.getRole().getName().name())));
     }
 
     @GetMapping("/users")
@@ -273,12 +212,7 @@ public class AdminController {
             @RequestParam(defaultValue = "all", name = "role") String role,
             @RequestParam(defaultValue = "all", name = "status") String status,
             @RequestParam(defaultValue = "all", name = "occupation") String occupation) {
-        try {
-            return handleGetUsers(value, page, size, sort, role, status, occupation);
-        } catch (Exception e) {
-            log.error("Lỗi sắp xếp, lọc, phân trang ,tìm kiếm người dùng: {}", e.getMessage());
-            throw new ServerException("Lỗi sắp xếp, lọc, phân trang ,tìm kiếm người dùng", e.getMessage(), 10042);
-        }
+        return handleGetUsers(value, page, size, sort, role, status, occupation);
     }
 
     private Role getRoleByName(String role) {
@@ -313,7 +247,7 @@ public class AdminController {
                             (value, pageable, admin);
             case "others" -> userService
                     .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotIn
-                            (value, occupations, pageable);
+                            (value, admin, occupations, pageable);
             default -> userService
                     .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCase
                             (value, pageable, admin, occupation);
@@ -342,7 +276,7 @@ public class AdminController {
                             (value, pageable, admin, role);
             case "others" -> userService
                     .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotIn
-                            (value, occupations, role, pageable);
+                            (value, admin, occupations, role, pageable);
             default -> userService
                     .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCase
                             (value, pageable, admin, role, occupation);
@@ -354,29 +288,29 @@ public class AdminController {
     (String occupation, Pageable pageable, Role admin, List<String> occupations) {
         return switch (occupation) {
             case "all" -> userService
-                    .findAllByRoleIsNotAndEnabledIsTrue(pageable, admin);
+                    .findAllByRoleIsNotAndEnabledIs(pageable, admin, true);
             case "others" -> userService
-                    .findAllByRoleIsNotAndOccupationNotInAndEnabledIsTrue
-                            (pageable, admin, occupations);
+                    .findAllByRoleIsNotAndOccupationNotInAndEnabledIs
+                            (pageable, admin, occupations, true);
             default -> userService
-                    .findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-                            (pageable, admin, occupation);
+                    .findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs
+                            (pageable, admin, occupation, true);
         };
     }
 
     // status = enabled, role = all and search
     private Page<User> getUserStatusIsEnabledAndRoleIsAllAndOccupationIsAndSearch
-    (String occupation, String value, Pageable pageable, List<String> occupations) {
+    (String occupation, String value, Pageable pageable, List<String> occupations, Role admin) {
         return switch (occupation) {
             case "all" -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIsTrue
-                            (value, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIs
+                            (value, admin, true, pageable);
             case "others" -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIsTrue
-                            (value, occupations, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIs
+                            (value, occupations, true, pageable);
             default -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-                            (value, occupation, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs
+                            (value, occupation, true, pageable);
         };
     }
 
@@ -385,30 +319,30 @@ public class AdminController {
     (String occupation, Pageable pageable, Role admin, List<String> occupations, Role role) {
         return switch (occupation) {
             case "all" -> userService
-                    .findAllByRoleIsNotAndRoleIsAndEnabledIsTrue(pageable, admin, role);
+                    .findAllByRoleIsNotAndRoleIsAndEnabledIs(pageable, admin, role, true);
             case "others" -> userService
-                    .findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIsTrue
-                            (role, occupations, pageable);
+                    .findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIs
+                            (role, occupations, true, pageable);
 
             default -> userService
-                    .findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-                            (pageable, admin, role, occupation);
+                    .findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+                            (pageable, admin, role, occupation, true);
         };
     }
 
     // status = enabled and search
     private Page<User> getUserStatusIsEnabledAndRoleIsAndOccupationIsAndSearch
-    (String occupation, String value, Pageable pageable, List<String> occupations, Role role) {
+    (String occupation, String value, Pageable pageable, List<String> occupations, Role role, Role admin) {
         return switch (occupation) {
             case "all" -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIsTrue
-                            (value, role, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIs
+                            (value, role, true, pageable);
             case "others" -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIsTrue
-                            (value, occupations, role, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIs
+                            (value, admin, occupations, role, true, pageable);
             default -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-                            (value, role, occupation, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+                            (value, role, occupation, true, pageable);
         };
     }
 
@@ -417,27 +351,27 @@ public class AdminController {
     (String occupation, Pageable pageable, Role admin, List<String> occupations) {
         return switch (occupation) {
             case "all" -> userService
-                    .findAllByRoleIsNotAndEnabledIsFalse(pageable, admin);
+                    .findAllByRoleIsNotAndEnabledIs(pageable, admin, false);
             case "others" -> userService
-                    .findAllByRoleIsNotAndOccupationNotInAndEnabledIsFalse(pageable, admin, occupations);
+                    .findAllByRoleIsNotAndOccupationNotInAndEnabledIs(pageable, admin, occupations, false);
             default -> userService
-                    .findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsFalse(pageable, admin, occupation);
+                    .findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs(pageable, admin, occupation, false);
         };
     }
 
     // status = disabled, role = all and search
     private Page<User> getUserStatusIsDisabledAndRoleIsAllAndOccupationIsAndSearch
-    (String occupation, String value, Pageable pageable, List<String> occupations) {
+    (String occupation, String value, Pageable pageable, List<String> occupations, Role admin) {
         return switch (occupation) {
             case "all" -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIsFalse
-                            (value, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIs
+                            (value, admin, false, pageable);
             case "others" -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIsFalse
-                            (value, occupations, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIs
+                            (value, occupations, false, pageable);
             default -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-                            (value, occupation, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs
+                            (value, occupation, false, pageable);
         };
     }
 
@@ -446,30 +380,30 @@ public class AdminController {
     (String occupation, Pageable pageable, Role admin, List<String> occupations, Role role) {
         return switch (occupation) {
             case "all" -> userService
-                    .findAllByRoleIsNotAndRoleIsAndEnabledIsFalse(pageable, admin, role);
+                    .findAllByRoleIsNotAndRoleIsAndEnabledIs(pageable, admin, role, false);
             case "others" -> userService
-                    .findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIsFalse
-                            (role, occupations, pageable);
+                    .findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIs
+                            (role, occupations, false, pageable);
             default -> userService
-                    .findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-                            (pageable, admin, role, occupation);
+                    .findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+                            (pageable, admin, role, occupation, false);
         };
     }
 
 
     // status = disabled, role and search
     private Page<User> getUserStatusIsDisabledAndRoleIsAndOccupationIsAndSearch
-    (String occupation, String value, Pageable pageable, List<String> occupations, Role role) {
+    (String occupation, String value, Pageable pageable, List<String> occupations, Role role, Role admin) {
         return switch (occupation) {
             case "all" -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIsFalse
-                            (value, role, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIs
+                            (value, role, false, pageable);
             case "others" -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIsFalse
-                            (value, occupations, role, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIs
+                            (value, admin, occupations, role, false, pageable);
             default -> userService
-                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-                            (value, role, occupation, pageable);
+                    .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+                            (value, role, occupation, false, pageable);
         };
     }
 
@@ -497,13 +431,13 @@ public class AdminController {
                     ? getUserStatusIsEnabledAndRoleIsAllAndOccupationIs
                     (occupation, pageable, admin, occupations)
                     : getUserStatusIsEnabledAndRoleIsAllAndOccupationIsAndSearch
-                    (occupation, value, pageable, occupations);
+                    (occupation, value, pageable, occupations, admin);
         }
         return (value == null)
                 ? getUserStatusIsEnabledAndRoleIsAndOccupationIs
                 (occupation, pageable, admin, occupations, role)
                 : getUserStatusIsEnabledAndRoleIsAndOccupationIsAndSearch
-                (occupation, value, pageable, occupations, role);
+                (occupation, value, pageable, occupations, role, admin);
     }
 
     private Page<User> getUserStatusIsDisabled
@@ -513,18 +447,18 @@ public class AdminController {
                     ? getUserStatusIsDisabledAndRoleIsAllAndOccupationIs
                     (occupation, pageable, admin, occupations)
                     : getUserStatusIsDisabledAndRoleIsAllAndOccupationIsAndSearch
-                    (occupation, value, pageable, occupations);
+                    (occupation, value, pageable, occupations, admin);
         }
         return (value == null)
                 ? getUserStatusIsDisabledAndRoleIsAndOccupationIs
                 (occupation, pageable, admin, occupations, role)
                 : getUserStatusIsDisabledAndRoleIsAndOccupationIsAndSearch
-                (occupation, value, pageable, occupations, role);
+                (occupation, value, pageable, occupations, role, admin);
     }
 
     private ResponseEntity<?> handleGetUsers
             (String value, int page, int size, String[] sort, String role, String status, String occupation) {
-        var orders = sortUtility.sortOrders(sort);
+        var orders = sortUtils.sortOrders(sort);
         var pageable = PageRequest.of(page, size, Sort.by(orders));
         var admin = roleService.findByName(RoleName.ROLE_ADMIN);
         var occupations = List.of("Sinh Viên", "Phụ Huynh", "Học Sinh", "Cựu Sinh Viên");
@@ -537,144 +471,94 @@ public class AdminController {
             default -> getUserStatusIsAll(roleObj, value, occupation, pageable, admin, occupations);
         };
 
-        var users = userUtility.mapUserPageToUserModels(userPage);
-        var response =
-                new PaginationModel<>(
-                        users,
-                        userPage.getNumber(),
-                        userPage.getTotalPages()
-                );
-        return ResponseEntity.ok(new ApiResponse<>(true, response));
+        var users = userUtils.mapUserPageToUserModels(userPage);
+        var response = new PaginationModel<>(users, userPage.getNumber(),
+                userPage.getTotalPages());
+        return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
 
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody UserPayload request) {
-        try {
-            return handleCreateUser(request);
-        } catch (Exception e) {
-            log.error("Lỗi thêm nhân viên: {}", e.getMessage());
-            throw new ServerException("Lỗi thêm nhân viên", e.getMessage(), 10043);
-        }
+        return handleCreateUser(request);
     }
 
     private ResponseEntity<?> handleCreateUser(UserPayload request) {
-        userUtility.validationGrantAccount(request);
+        userUtils.validationGrantAccount(request);
 
         var validRoles = List.of("counsellor", "supervisor");
         var roleNameMap = Map.of("counsellor", RoleName.ROLE_COUNSELLOR, "supervisor", RoleName.ROLE_SUPERVISOR);
 
         if (!validRoles.contains(request.getRole())) {
-            throw new BadRequestException("Quyền truy cập không hợp lệ", "Giá trị " + request.getRole() + " không hợp lệ", 10044);
+            throw new BadRequestException("Quyền truy cập không hợp lệ", "Giá trị " + request.getRole() + " không hợp lệ", 10022);
         }
 
         var role = roleService.findByName(roleNameMap.get(request.getRole()));
         if (role == null) {
-            throw new BadRequestException("Quyền truy cập không hợp lệ", "Giá trị " + request.getRole() + " không hợp lệ", 10044);
+            throw new BadRequestException("Quyền truy cập không hợp lệ", "Giá trị " + request.getRole() + " không hợp lệ", 10023);
         }
 
-
-        var user = new User(
-                request.getName(),
+        var user = new User(request.getName(),
                 request.getEmail().toLowerCase(),
-                request.getPhone(),
-                passwordEncoder.encode(request.getPassword()),
-                true,
-                role);
+                request.getPhone(), passwordEncoder.encode(request.getPassword()),
+                true, role);
         userService.save(user);
-        return new ResponseEntity<>(
-                new MessageResponse(true, "Tạo tài khoản thành công"),
-                HttpStatus.CREATED);
+        return ResponseEntity.ok(new SuccessResponse("Tạo tài khoản thành công"));
     }
 
-    @DeleteMapping("/fields/{id}")
-    public ResponseEntity<?> deleteField(@PathVariable("id") String id) {
-        try {
-            return handleDeleteField(id);
-        } catch (Exception e) {
-            log.error("Lỗi xóa lĩnh vực: {}", e.getMessage());
-            throw new ServerException("Lỗi xóa lĩnh vực", e.getMessage(), 10045);
-        }
+    @PatchMapping("/fields/{id}")
+    public ResponseEntity<?> patchStatusField(@PathVariable("id") String id) {
+        return handlePatchStatusField(id);
     }
 
-    private ResponseEntity<?> handleDeleteField(String id) {
-        fieldService.deleteById(id);
-        return new ResponseEntity<>(
-                new MessageResponse(true, "Xóa lĩnh vực thành công"),
-                HttpStatus.OK);
+    private ResponseEntity<?> handlePatchStatusField(String id) {
+        var field = fieldService.findById(id);
+        var status = !field.getStatus();
+        field.setStatus(status);
+        fieldService.save(field);
+        return ResponseEntity.ok(new ApiSuccessResponse<>(status));
     }
 
     @PostMapping("/fields")
-    public ResponseEntity<?> createField(@RequestBody FieldPayload request) {
-        try {
-            return handleCreateField(request);
-        } catch (Exception e) {
-            log.error("Lỗi thêm lĩnh vực: {}", e.getMessage());
-            throw new ServerException("Lỗi thêm lĩnh vực", e.getMessage(), 10046);
-        }
+    public ResponseEntity<?> createField(@RequestBody Field request) {
+        return handleCreateField(request);
     }
 
     @PutMapping("/fields/{id}")
-    public ResponseEntity<?> updateField(@PathVariable("id") String id, @RequestBody FieldPayload request) {
-        try {
-            return handleUpdateField(id, request);
-        } catch (Exception e) {
-            log.error("Lỗi cập nhật lĩnh vực: {}", e.getMessage());
-            throw new ServerException("Lỗi cập nhật lĩnh vực", e.getMessage(), 10046);
-        }
+    public ResponseEntity<?> updateField(@PathVariable("id") String id, @RequestBody Field request) {
+        return handleUpdateField(id, request);
     }
 
-    private ResponseEntity<?> handleCreateField(FieldPayload request) {
+    private ResponseEntity<?> handleCreateField(Field request) {
         validationCreateField(request);
-        var fields = new Field(
-                request.getName()
-        );
+        var fields = new Field(request.getName(), true);
         fieldService.save(fields);
-        return new ResponseEntity<>(
-                new MessageResponse(true, "Thêm lĩnh vực thành công"),
-                HttpStatus.CREATED);
+        return ResponseEntity.ok(new SuccessResponse("Thêm lĩnh vực thành công"));
     }
 
-    private ResponseEntity<?> handleUpdateField(String id, FieldPayload request) {
+    private ResponseEntity<?> handleUpdateField(String id, Field request) {
         validationUpdateField(id, request);
         var field = fieldService.findById(id);
         field.setName(request.getName());
         fieldService.save(field);
-        return new ResponseEntity<>(
-                new MessageResponse(true, "Cập nhật lĩnh vực thành công"),
-                HttpStatus.OK);
+        return ResponseEntity.ok(new SuccessResponse("Cập nhật lĩnh vực thành công"));
 
     }
 
     @PostMapping("/departments")
-    public ResponseEntity<?> createDepartment(@RequestBody DepartmentPayload request) {
-        try {
-            return handleCreateDepartment(request);
-        } catch (Exception e) {
-            log.error("Lỗi tạo khoa: {}", e.getMessage());
-            throw new ServerException("Lỗi tạo khoa", e.getMessage(), 10047);
-        }
+    public ResponseEntity<?> createDepartment(@RequestBody Department request) {
+        return handleCreateDepartment(request);
     }
 
 
     @PutMapping("/departments/{id}")
-    public ResponseEntity<?> updateDepartment(@PathVariable("id") String id, @RequestBody DepartmentPayload request) {
-        try {
-            return handleUpdateDepartment(id, request);
-        } catch (Exception e) {
-            log.error("Lỗi cập nhật khoa: {}", e.getMessage());
-            throw new ServerException("Lỗi cập nhật khoa", e.getMessage(), 10047);
-        }
+    public ResponseEntity<?> updateDepartment(@PathVariable("id") String id, @RequestBody Department request) {
+        return handleUpdateDepartment(id, request);
     }
 
     @PatchMapping("/departments/{id}")
     public ResponseEntity<?> patchStatusDepartment(@PathVariable("id") String id) {
-        try {
-            return handlePatchStatusDepartment(id);
-        } catch (Exception e) {
-            log.error("Lỗi cập nhật trạng thái khoa: {}", e.getMessage());
-            throw new ServerException("Lỗi cập nhật trạng thái khoa", e.getMessage(), 10048);
-        }
+        return handlePatchStatusDepartment(id);
     }
 
     private ResponseEntity<?> handlePatchStatusDepartment(String id) {
@@ -682,75 +566,67 @@ public class AdminController {
         var status = !department.getStatus();
         department.setStatus(status);
         departmentService.save(department);
-        return new ResponseEntity<>(
-                new ApiResponse<>(true, status),
-                HttpStatus.OK);
+        return ResponseEntity.ok(new ApiSuccessResponse<>(status));
     }
 
-    private ResponseEntity<?> handleUpdateDepartment(String id, DepartmentPayload request) {
+    private ResponseEntity<?> handleUpdateDepartment(String id, Department request) {
         validationUpdateDepartment(id, request);
         var department = departmentService.findById(id);
         department.setName(request.getName());
         department.setDescription(request.getDescription());
         departmentService.save(department);
-        return new ResponseEntity<>(
-                new MessageResponse(true, "Cập nhật khoa thành công"),
-                HttpStatus.OK);
+        return ResponseEntity.ok(
+                new SuccessResponse("Cập nhật khoa thành công"));
     }
 
-    private ResponseEntity<?> handleCreateDepartment(DepartmentPayload request) {
+    private ResponseEntity<?> handleCreateDepartment(Department request) {
         validationCreateDepartment(request);
-        var department = new Department(
-                request.getName(),
-                request.getDescription()
-        );
-        department.setStatus(true);
+        var department = new Department(request.getName(),
+                request.getDescription(), true);
         departmentService.save(department);
-        return new ResponseEntity<>(
-                new MessageResponse(true, "Thêm khoa thành công"),
-                HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new SuccessResponse("Thêm khoa thành công"));
     }
 
-    private void validationCreateDepartment(DepartmentPayload request) {
+    private void validationCreateDepartment(Department request) {
         var name = request.getName().trim();
         if (name.isEmpty()) {
-
-            throw new BadRequestException("Tên khoa không để thể trống", "Tên khoa hiện được nhập đang trống", 10049);
+            throw new BadRequestException("Tên khoa không để thể trống", "Tên khoa hiện được nhập đang trống", 10024);
         }
         if (departmentService.existsByName(name)) {
-            throw new BadRequestException("Khoa đã tồn tại", "Tên khoa" + name + " đã tồn tại", 10050);
+            throw new BadRequestException("Khoa đã tồn tại", "Tên khoa" + name + " đã tồn tại", 10025);
         }
     }
 
-    public void validationUpdateDepartment(String id, DepartmentPayload request) {
+    public void validationUpdateDepartment(String id, Department request) {
         String name = request.getName().trim();
         if (name.isEmpty()) {
-            throw new BadRequestException("Tên khoa không để thể trống", "Tên khoa hiện được nhập đang trống", 10049);
+            throw new BadRequestException("Tên khoa không để thể trống", "Tên khoa hiện được nhập đang trống", 10026);
         }
 
         if (departmentService.existsByNameAndIdIsNot(name, id)) {
-            throw new BadRequestException("Khoa đã tồn tại", "Tên khoa" + name + " đã tồn tại", 10050);
+            throw new BadRequestException("Khoa đã tồn tại", "Tên khoa" + name + " đã tồn tại", 10027);
         }
     }
 
-    private void validationCreateField(FieldPayload request) {
+    private void validationCreateField(Field request) {
         var name = request.getName().trim();
         if (name.isEmpty()) {
-            throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực hiện được nhập đang trống", 10051);
+            throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực hiện được nhập đang trống", 10028);
         }
         if (fieldService.existsByName(name)) {
-            throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực" + name + " đã tồn tại", 10052);
+            throw new BadRequestException("Tên lĩnh vực đã tồn tại", "Tên lĩnh vực" + name + " đã tồn tại", 10029);
         }
     }
 
-    public void validationUpdateField(String id, FieldPayload request) {
+    public void validationUpdateField(String id, Field request) {
         String name = request.getName().trim();
         if (name.isEmpty()) {
-            throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực hiện được nhập đang trống", 10051);
+            throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực hiện được nhập đang trống", 10030);
         }
 
         if (fieldService.existsByNameAndIdIsNot(name, id)) {
-            throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực" + name + " đã tồn tại", 10052);
+            throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực" + name + " đã tồn tại", 10031);
         }
     }
 }

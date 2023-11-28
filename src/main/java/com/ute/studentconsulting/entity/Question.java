@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -71,7 +70,7 @@ public class Question {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    private Set<ForwardQuestion> forwardQuestions = new HashSet<>();
+    private Set<ForwardQuestion> forwardQuestions;
 
     @Override
     public String toString() {

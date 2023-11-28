@@ -1,4 +1,4 @@
-package com.ute.studentconsulting.utility;
+package com.ute.studentconsulting.utils;
 
 import com.ute.studentconsulting.entity.Question;
 import com.ute.studentconsulting.model.QuestionItemModel;
@@ -9,15 +9,13 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Component
-public class QuestionUtility {
+public class QuestionUtils {
     public List<QuestionItemModel> mapQuestionPageToQuestionModels(Page<Question> questionPage) {
         var simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return questionPage.getContent().stream().map(question ->
                 new QuestionItemModel(
-                        question.getId(),
-                        question.getTitle(),
+                        question.getId(), question.getTitle(),
                         simpleDateFormat.format(question.getDate()),
-                        question.getField().getName())
-        ).toList();
+                        question.getField().getName())).toList();
     }
 }

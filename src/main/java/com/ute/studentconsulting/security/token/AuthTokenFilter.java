@@ -1,6 +1,5 @@
 package com.ute.studentconsulting.security.token;
 
-import com.ute.studentconsulting.exception.UnauthorizedException;
 import com.ute.studentconsulting.security.service.impl.UserDetailsServiceImpl;
 import io.micrometer.common.lang.NonNullApi;
 import jakarta.servlet.FilterChain;
@@ -20,7 +19,7 @@ import java.io.IOException;
 @Slf4j
 public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
-    private TokenUtility tokenUtility;
+    private TokenUtils tokenUtils;
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -29,19 +28,16 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             var token = parseToken(request);
-            if (StringUtils.hasText(token) && tokenUtility.validateToken(token)) {
-                var username = tokenUtility.getUsernameFromToken(token);
+            if (StringUtils.hasText(token) && tokenUtils.validateToken(token)) {
+                var username = tokenUtils.getUsernameFromToken(token);
                 var userDetails = userDetailsService.loadUserByUsername(username);
                 var authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
+                        userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
-            log.error("Lỗi không thể authorization người dùng: {}", e.getMessage());
-            throw new UnauthorizedException("Lỗi không thể authorization người dùng", e.getMessage(), 10090);
+            log.error("Không thể ủy quyền cho người dùng: {}", e.getMessage());
         }
         filterChain.doFilter(request, response);
     }

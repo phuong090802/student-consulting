@@ -1,9 +1,9 @@
 package com.ute.studentconsulting.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -22,11 +22,16 @@ public class Field {
     @Column(name = "name")
     private String name;
 
+    @NonNull
+    @Column(name = "status")
+    private Boolean status;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "field", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    private Set<Question> questions = new HashSet<>();
+    private Set<Question> questions;
 
     @Override
     public String toString() {

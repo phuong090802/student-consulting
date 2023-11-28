@@ -1,9 +1,9 @@
 package com.ute.studentconsulting.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -26,15 +26,18 @@ public class Department {
     @Column(name = "description")
     private String description;
 
+    @NonNull
     @Column(name = "status")
     private Boolean status;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "department", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    private Set<User> users = new HashSet<>();
+    private Set<User> users;
 
+    @JsonIgnore
     @ManyToMany(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
@@ -42,25 +45,28 @@ public class Department {
     @JoinTable(name = "department_fields",
             joinColumns = @JoinColumn(name = "department_id"),
             inverseJoinColumns = @JoinColumn(name = "field_id"))
-    private Set<Field> fields = new HashSet<>();
+    private Set<Field> fields;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "department", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    private Set<Question> questions = new HashSet<>();
+    private Set<Question> questions;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "fromDepartment", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    private Set<ForwardQuestion> forwardQuestions = new HashSet<>();
+    private Set<ForwardQuestion> forwardQuestions;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "toDepartment", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    private Set<ForwardQuestion> receiveQuestions = new HashSet<>();
+    private Set<ForwardQuestion> receiveQuestions;
 
     @Override
     public String toString() {

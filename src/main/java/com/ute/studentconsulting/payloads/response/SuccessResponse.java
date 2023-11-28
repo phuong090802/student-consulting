@@ -1,15 +1,13 @@
 package com.ute.studentconsulting.payloads.response;
 
+
 import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class ErrorResponse {
-    private boolean success = false;
+public class SuccessResponse {
+    private boolean success = true;
     private final String message;
-    private final String detail;
-    private final int code;
-
 }

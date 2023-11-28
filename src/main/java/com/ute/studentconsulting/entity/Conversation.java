@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -39,9 +38,13 @@ public class Conversation {
     @JoinColumn(name = "user_id_2")
     private User user2;
 
-    @OneToMany(mappedBy = "conversation",
-            cascade = CascadeType.ALL)
-    private Set<Message> messages = new HashSet<>();
+    @OneToMany(cascade = {
+            CascadeType.DETACH,
+            CascadeType.MERGE,
+            CascadeType.PERSIST,
+            CascadeType.REFRESH
+    })
+    private Set<Message> messages;
 
     @Override
     public String toString() {

@@ -3,7 +3,7 @@ package com.ute.studentconsulting.service.impl;
 import com.ute.studentconsulting.entity.Department;
 import com.ute.studentconsulting.entity.Role;
 import com.ute.studentconsulting.entity.User;
-import com.ute.studentconsulting.exception.UserException;
+import com.ute.studentconsulting.exception.NotFoundException;
 import com.ute.studentconsulting.repository.UserRepository;
 import com.ute.studentconsulting.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +28,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByPhone(String phone) {
         return userRepository.findByPhone(phone)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng",
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng",
                         "Không tìm thấy người dùng với số điện thoại: " + phone,
-                        1006));
+                        10006));
     }
 
     @Override
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(String id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng",
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng",
                         "Không tìm thấy người dùng với id: " + id, 10007));
     }
 
@@ -57,86 +57,64 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> findAllByRoleIsNotAndOccupationNotIn(Pageable pageable, Role admin, Collection<String> occupations) {
+    public Page<User> findAllByRoleIsNotAndOccupationNotIn
+            (Pageable pageable, Role admin, Collection<String> occupations) {
         return userRepository
                 .findAllByRoleIsNotAndOccupationNotIn(pageable, admin, occupations);
     }
 
     @Override
-    public Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCase(Pageable pageable, Role admin, String occupation) {
+    public Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCase
+            (Pageable pageable, Role admin, String occupation) {
         return userRepository
                 .findAllByRoleIsNotAndOccupationEqualsIgnoreCase(pageable, admin, occupation);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNot(String value, Pageable pageable, Role admin) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNot
+            (String value, Pageable pageable, Role admin) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNot(value, value, value, pageable, admin);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNot
+                        (value, value, value, pageable, admin);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotIn(String value, Collection<String> occupations, Role role, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotIn
+            (String value, Role admin, Collection<String> occupations, Role role, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotIn(value, occupations, role, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotIn
+                        (value, admin, occupations, role, pageable);
     }
 
     @Override
-    public Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-            (Pageable pageable, Role admin, String occupation) {
+    public Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs
+            (Pageable pageable, Role admin, String occupation, boolean enabled) {
         return userRepository
-                .findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-                        (pageable, admin, occupation);
+                .findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs
+                        (pageable, admin, occupation, enabled);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIsFalse(String value, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIs
+            (String value, Role admin, boolean enabled, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIsFalse(value, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIs
+                        (value, admin, enabled, pageable);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIsTrue
-            (String value, Pageable pageable) {
+    public Page<User> findAllByRoleIsNotAndRoleIsAndEnabledIs
+            (Pageable pageable, Role admin, Role role, boolean enabled) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIsTrue
-                        (value, pageable);
+                .findAllByRoleIsNotAndRoleIsAndEnabledIs(pageable, admin, role, enabled);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIsFalse
-            (String value, Collection<String> occupations, Role role, Pageable pageable) {
-        return userRepository.
-                findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIsFalse
-                        (value, occupations, role, pageable);
-    }
-
-    @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsTrue(String value, Role role, String occupation, Pageable pageable) {
+    public User findByIdAndRoleIsNot(String id, Role role) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-                        (value, role, occupation, pageable);
-    }
-
-    @Override
-    public Page<User> findAllByRoleIsNotAndRoleIsAndEnabledIsTrue(Pageable pageable, Role admin, Role role) {
-        return userRepository
-                .findAllByRoleIsNotAndRoleIsAndEnabledIsTrue(pageable, admin, role);
-    }
-
-    @Override
-    public Page<User> findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIsTrue
-            (Role role, Collection<String> occupations, Pageable pageable) {
-        return userRepository
-                .findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIsTrue
-                        (role, occupations, pageable);
-    }
-
-    @Override
-    public User findByIdAndRoleIsNot(String id, Role admin) {
-        return userRepository
-                .findByIdAndRoleIsNot(id, admin)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng",
-                        "Không tìm thấy người dùng với id: " + id + " với role không phải là role: " + admin.toString(),
+                .findByIdAndRoleIsNot(id, role)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng",
+                        "Không tìm thấy người dùng với id: " + id + " với role không phải là role: " + role.getName().name(),
                         10008));
     }
 
@@ -155,19 +133,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> findAllByDepartmentIsAndIdIsNotAndEnabledIsTrue
-            (Pageable pageable, Department department, String id) {
+    public Page<User> findAllByDepartmentIsAndIdIsNotAndEnabledIs
+            (Pageable pageable, Department department, String id, boolean enabled) {
         return userRepository
-                .findAllByDepartmentIsAndIdIsNotAndEnabledIsTrue
-                        (pageable, department, id);
+                .findAllByDepartmentIsAndIdIsNotAndEnabledIs
+                        (pageable, department, id, enabled);
     }
 
     @Override
     public User findByIdAndDepartmentIs(String id, Department department) {
         return userRepository.findByIdAndDepartmentIs(id, department)
                 .orElseThrow(() ->
-                        new UserException("Không tìm thấy người dùng",
-                                "Không tìm thấy người dùng với id: " + id + " ở phòng ban: " + department.toString(), 10009));
+                        new NotFoundException("Không tìm thấy người dùng",
+                                "Không tìm thấy người dùng với id: " + id + " ở phòng ban: " + department.getName(), 10009));
     }
 
     @Override
@@ -177,199 +155,124 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue
-            (String value, Department department, String id, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIs
+            (String value, Department department, String id, boolean enabled, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue
-                        (value, department, id, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIs
+                        (value, department, id, enabled, pageable);
     }
 
     @Override
-    public User findByIdAndEnabledIsTrue(String id) {
-        return userRepository.findByIdAndEnabledIsTrue(id)
-                .orElseThrow(() -> new UserException("Không tìm thấy người dùng",
-                        "Không tìm thấy người dùng với trạng thái hoạt động và id là: " + id,
+    public User findByIdAndEnabledIs(String id, boolean enabled) {
+        return userRepository.findByIdAndEnabledIs(id, enabled)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng",
+                        "Không tìm thấy người dùng với trạng thái hoạt động và id: " + id,
                         10010));
     }
 
     @Override
-    public Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIsTrue(Pageable pageable, Role role) {
+    public Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIs(Pageable pageable, Role role, boolean enabled) {
         return userRepository
-                .findAllByRoleIsAndDepartmentIsNullAndEnabledIsTrue(pageable, role);
+                .findAllByRoleIsAndDepartmentIsNullAndEnabledIs(pageable, role, enabled);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIsTrue
-            (String value, Role role, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIs
+            (String value, Role role, boolean enabled, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIsTrue
-                        (value, role, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIs
+                        (value, role, enabled, pageable);
     }
 
     @Override
-    public Page<User> findAllByDepartmentIsAndIdIsNotAndEnabledIsFalse
-            (Pageable pageable, Department department, String id) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIs
+            (String value, Department department, String id, boolean enabled, Pageable pageable) {
         return userRepository
-                .findAllByDepartmentIsAndIdIsNotAndEnabledIsFalse
-                        (pageable, department, id);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIs
+                        (value, department, id, enabled, pageable);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIsTrue
-            (String value, Department department, String id, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIs
+            (String value, Department department, boolean enabled, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIsTrue
-                        (value, department, id, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIs
+                        (value, department, enabled, pageable);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIsTrue(String value, Department department, Pageable pageable) {
-        return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIsTrue(value, department, pageable);
+    public Page<User> findAllByDepartmentIsAndEnabledIs(Pageable pageable, boolean enabled, Department department) {
+        return userRepository.findAllByDepartmentIsAndEnabledIs(pageable, enabled, department);
     }
 
     @Override
-    public Page<User> findAllByDepartmentIsAndEnabledIsTrue(Pageable pageable, Department department) {
-        return userRepository.findAllByDepartmentIsAndEnabledIsTrue(pageable, department);
+    public Page<User> findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIs
+            (Role role, Collection<String> occupations, boolean enabled, Pageable pageable) {
+        return userRepository
+                .findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIs
+                        (role, occupations, enabled, pageable);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIsFalse
-            (String value, Department department, String id, Pageable pageable) {
+    public Page<User> findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+            (Pageable pageable, Role admin, Role role, String occupation, boolean enabled) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIsFalse
-                        (value, department, id, pageable);
-    }
-
-
-    @Override
-    public Page<User> findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIsFalse
-            (Role role, Collection<String> occupations, Pageable pageable) {
-        return userRepository
-                .findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIsFalse
-                        (role, occupations, pageable);
+                .findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+                        (pageable, admin, role, occupation, enabled);
     }
 
     @Override
-    public Page<User> findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-            (Pageable pageable, Role admin, Role role, String occupation) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIs
+            (String value, Role role, boolean enabled, Pageable pageable) {
         return userRepository
-                .findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-                        (pageable, admin, role, occupation);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIs
+                        (value, role, enabled, pageable);
     }
 
     @Override
-    public Page<User> findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-            (Pageable pageable, Role admin, Role role, String occupation) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs
+            (String value, String occupation, boolean enabled, Pageable pageable) {
         return userRepository
-                .findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-                        (pageable, admin, role, occupation);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs
+                        (value, occupation, enabled, pageable);
     }
 
     @Override
-    public Page<User> findAllByRoleIsNotAndRoleIsAndEnabledIsFalse(Pageable pageable, Role admin, Role role) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIs
+            (String value, Collection<String> occupations, boolean enabled, Pageable pageable) {
         return userRepository
-                .findAllByRoleIsNotAndRoleIsAndEnabledIsFalse(pageable, admin, role);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIs
+                        (value, occupations, enabled, pageable);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIsFalse
-            (String value, Collection<String> occupations, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+            (String value, Role role, String occupation, boolean enabled, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIsFalse
-                        (value, occupations, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+                        (value, role, occupation, enabled, pageable);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIsFalse
-            (String value, Role role, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIs
+            (String value, Role admin, Collection<String> occupations, Role role, boolean enabled, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIsFalse
-                        (value, role, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIs
+                        (value, admin, occupations, role, enabled, pageable);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-            (String value, String occupation, Pageable pageable) {
+    public Page<User> findAllByRoleIsNotAndOccupationNotInAndEnabledIs
+            (Pageable pageable, Role admin, Collection<String> occupations, boolean enabled) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-                        (value, occupation, pageable);
+                .findAllByRoleIsNotAndOccupationNotInAndEnabledIs
+                        (pageable, admin, occupations, enabled);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIsTrue
-            (String value, Role role, Pageable pageable) {
+    public Page<User> findAllByRoleIsNotAndEnabledIs(Pageable pageable, Role admin, boolean enabled) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIsTrue
-                        (value, role, pageable);
-    }
-
-    @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-            (String value, String occupation, Pageable pageable) {
-        return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-                        (value, occupation, pageable);
-    }
-
-    @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIsTrue
-            (String value, Collection<String> occupations, Pageable pageable) {
-        return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIsTrue
-                        (value, occupations, pageable);
-    }
-
-    @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-            (String value, Role role, String occupation, Pageable pageable) {
-        return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-                        (value, role, occupation, pageable);
-    }
-
-    @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIsTrue
-            (String value, Collection<String> occupations, Role role, Pageable pageable) {
-        return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIsTrue
-                        (value, occupations, role, pageable);
-    }
-
-    @Override
-    public Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-            (Pageable pageable, Role admin, String occupation) {
-        return userRepository
-                .findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-                        (pageable, admin, occupation);
-    }
-
-    @Override
-    public Page<User> findAllByRoleIsNotAndOccupationNotInAndEnabledIsFalse
-            (Pageable pageable, Role admin, Collection<String> occupations) {
-        return userRepository
-                .findAllByRoleIsNotAndOccupationNotInAndEnabledIsFalse
-                        (pageable, admin, occupations);
-    }
-
-    @Override
-    public Page<User> findAllByRoleIsNotAndEnabledIsTrue(Pageable pageable, Role admin) {
-        return userRepository
-                .findAllByRoleIsNotAndEnabledIsTrue(pageable, admin);
-    }
-
-    @Override
-    public Page<User> findAllByRoleIsNotAndOccupationNotInAndEnabledIsTrue
-            (Pageable pageable, Role admin, Collection<String> occupations) {
-        return userRepository
-                .findAllByRoleIsNotAndOccupationNotInAndEnabledIsTrue
-                        (pageable, admin, occupations);
-    }
-
-    @Override
-    public Page<User> findAllByRoleIsNotAndEnabledIsFalse(Pageable pageable, Role admin) {
-        return userRepository
-                .findAllByRoleIsNotAndEnabledIsFalse(pageable, admin);
+                .findAllByRoleIsNotAndEnabledIs(pageable, admin, enabled);
     }
 
     @Override
@@ -420,9 +323,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotIn
-            (String value, Collection<String> occupations, Pageable pageable) {
+            (String value, Role admin, Collection<String> occupations, Pageable pageable) {
         return userRepository
                 .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotIn
-                        (value, occupations, pageable);
+                        (value, admin, occupations, pageable);
     }
 }

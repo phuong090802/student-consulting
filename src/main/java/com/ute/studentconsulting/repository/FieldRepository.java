@@ -13,12 +13,17 @@ public interface FieldRepository extends JpaRepository<Field, String> {
 
     Boolean existsByNameAndIdIsNot(String name, String id);
 
-    Page<Field> findByNameContaining(String value, Pageable pageable);
-
-    List<Field> findAllByIdIn(Collection<String> ids);
+    List<Field> findAllByIdInAndStatusIs(Collection<String> ids, Boolean status);
 
     Page<Field> findAllByIdIn(Pageable pageable, Collection<String> ids);
 
-    Page<Field> findByNameContainingAndIdIn(String value, Collection<String> ids, Pageable pageable);
-    List<Field> findAllByIdIsNotIn(Collection<String> ids);
+    Page<Field> findByNameContainingIgnoreCaseAndIdIn(String value, Collection<String> ids, Pageable pageable);
+
+    List<Field> findAllByIdIsNotInAndStatusIs(Collection<String> ids, Boolean status);
+    Page<Field> findAllByStatusIs(Boolean status, Pageable pageable);
+
+    Page<Field> findByNameContainingIgnoreCaseAndStatusIs(String value, Boolean status, Pageable pageable);
+    Page<Field> findByNameContainingIgnoreCase(String value, Pageable pageable);
+    List<Field> findAllByStatusIs(Boolean status);
+    List<Field> findAllByIdIn(Collection<String> ids);
 }

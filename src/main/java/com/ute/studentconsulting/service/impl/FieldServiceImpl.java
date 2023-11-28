@@ -1,7 +1,7 @@
 package com.ute.studentconsulting.service.impl;
 
 import com.ute.studentconsulting.entity.Field;
-import com.ute.studentconsulting.exception.FieldException;
+import com.ute.studentconsulting.exception.NotFoundException;
 import com.ute.studentconsulting.repository.FieldRepository;
 import com.ute.studentconsulting.service.FieldService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,11 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
+    public List<Field> findAllByIdInAndStatusIs(Collection<String> ids, boolean status) {
+        return fieldRepository.findAllByIdInAndStatusIs(ids, status);
+    }
+
+    @Override
     public List<Field> findAllByIdIn(Collection<String> ids) {
         return fieldRepository.findAllByIdIn(ids);
     }
@@ -45,19 +50,36 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
-    public List<Field> findAllByIdIsNotIn(Collection<String> ids) {
-        return fieldRepository.findAllByIdIsNotIn(ids);
+    public List<Field> findAllByIdIsNotInAndStatusIs(Collection<String> ids, boolean status) {
+        return fieldRepository.findAllByIdIsNotInAndStatusIs(ids, status);
     }
 
     @Override
-    public List<Field> findAll() {
-        return fieldRepository.findAll();
+    public List<Field> findAllByStatusIs(boolean status) {
+        return fieldRepository.findAllByStatusIs(status);
+    }
+
+    @Override
+    public Page<Field> findAllByStatusIs(boolean status, Pageable pageable) {
+        return fieldRepository.findAllByStatusIs(status, pageable);
+    }
+
+    @Override
+    public Page<Field> findByNameContainingIgnoreCase(String value, Pageable pageable) {
+        return fieldRepository.findByNameContainingIgnoreCase(value, pageable);
+    }
+
+    @Override
+    public Page<Field> findByNameContainingIgnoreCaseAndStatusIs
+            (String value, boolean status, Pageable pageable) {
+        return fieldRepository
+                .findByNameContainingIgnoreCaseAndStatusIs(value, status, pageable);
     }
 
     @Override
     public Field findById(String id) {
         return fieldRepository.findById(id)
-                .orElseThrow(() -> new FieldException(
+                .orElseThrow(() -> new NotFoundException(
                         "Không tìm thấy lĩnh vực",
                         "Không tìm thấy lĩnh vực với id: " + id,
                         10003));
@@ -65,19 +87,8 @@ public class FieldServiceImpl implements FieldService {
 
 
     @Override
-    public Page<Field> findByNameContainingAndIdIn(String value, Collection<String> ids, Pageable pageable) {
-        return fieldRepository.findByNameContainingAndIdIn(value, ids, pageable);
-    }
-
-    @Override
-    @Transactional
-    public void deleteById(String id) {
-        fieldRepository.deleteById(id);
-    }
-
-    @Override
-    public Page<Field> findByNameContaining(String value, Pageable pageable) {
-        return fieldRepository.findByNameContaining(value, pageable);
+    public Page<Field> findByNameContainingIgnoreCaseAndIdIn(String value, Collection<String> ids, Pageable pageable) {
+        return fieldRepository.findByNameContainingIgnoreCaseAndIdIn(value, ids, pageable);
     }
 
     @Override

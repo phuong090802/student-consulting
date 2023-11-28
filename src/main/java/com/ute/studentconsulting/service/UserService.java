@@ -21,127 +21,109 @@ public interface UserService {
 
     Page<User> findAllByRoleIsNot(Pageable pageable, Role admin);
 
-    Page<User> findAllByRoleIsNotAndOccupationNotIn(Pageable pageable, Role admin, Collection<String> occupations);
+    Page<User> findAllByRoleIsNotAndOccupationNotIn
+            (Pageable pageable, Role admin, Collection<String> occupations);
 
-    Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCase(Pageable pageable, Role admin, String occupation);
+    Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCase
+            (Pageable pageable, Role admin, String occupation);
 
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNot
             (String value, Pageable pageable, Role admin);
 
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotIn
-            (String value, Collection<String> occupations, Pageable pageable);
+            (String value, Role admin, Collection<String> occupations, Pageable pageable);
 
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCase
             (String value, Pageable pageable, Role admin, String occupation);
 
     Page<User> findAllByRoleIsNotAndRoleIs(Pageable pageable, Role admin, Role role);
 
-    Page<User> findAllByRoleIsNotAndRoleIsAndOccupationNotIn(Pageable pageable, Role admin, Role role, Collection<String> occupations);
+    Page<User> findAllByRoleIsNotAndRoleIsAndOccupationNotIn
+            (Pageable pageable, Role admin, Role role, Collection<String> occupations);
 
-    Page<User> findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCase(Pageable pageable, Role admin, Role role, String occupation);
+    Page<User> findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCase
+            (Pageable pageable, Role admin, Role role, String occupation);
 
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIs
             (String value, Pageable pageable, Role admin, Role role);
 
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotIn
-            (String value, Collection<String> occupations, Role role, Pageable pageable);
+            (String value, Role admin, Collection<String> occupations, Role role, Pageable pageable);
 
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCase
             (String value, Pageable pageable, Role admin, Role role, String occupation);
 
-    Page<User> findAllByRoleIsNotAndEnabledIsTrue(Pageable pageable, Role admin);
+    Page<User> findAllByRoleIsNotAndEnabledIs(Pageable pageable, Role admin, boolean enabled);
 
-    Page<User> findAllByRoleIsNotAndEnabledIsFalse(Pageable pageable, Role admin);
 
-    Page<User> findAllByRoleIsNotAndOccupationNotInAndEnabledIsTrue(Pageable pageable, Role admin, Collection<String> occupations);
+    Page<User> findAllByRoleIsNotAndOccupationNotInAndEnabledIs
+            (Pageable pageable, Role admin, Collection<String> occupations, boolean enabled);
 
-    Page<User> findAllByRoleIsNotAndOccupationNotInAndEnabledIsFalse(Pageable pageable, Role admin, Collection<String> occupations);
 
-    Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsTrue(Pageable pageable, Role admin, String occupation);
+    Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs
+            (Pageable pageable, Role admin, String occupation, boolean enabled);
 
-    Page<User> findAllByRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsFalse(Pageable pageable, Role admin, String occupation);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIs
+            (String value, Role admin, boolean enabled, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIsTrue
-            (String value, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndEnabledIsFalse
-            (String value, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIs
+            (String value, Role admin, Collection<String> occupations, Role role, boolean enabled, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIsTrue
-            (String value, Collection<String> occupations, Role role, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotInAndEnableIsFalse
-            (String value, Collection<String> occupations, Role role, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+            (String value, Role role, String occupation, boolean enabled, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-            (String value, Role role, String occupation, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIs
+            (String value, Collection<String> occupations, boolean enabled, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-            (String value, Role role, String occupation, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIsFalse
-            (String value, Collection<String> occupations, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIs
+            (String value, String occupation, boolean enabled, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationNotInAndEnabledIsTrue
-            (String value, Collection<String> occupations, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIs
+            (String value, Role role, boolean enabled, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsFalse
-            (String value, String occupation, Pageable pageable);
+    Page<User> findAllByRoleIsNotAndRoleIsAndEnabledIs(
+            Pageable pageable, Role admin, Role role, boolean enabled);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndOccupationEqualsIgnoreCaseAndEnabledIsTrue
-            (String value, String occupation, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIsTrue
-            (String value, Role role, Pageable pageable);
+    Page<User> findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIs
+            (Pageable pageable, Role admin, Role role, String occupation, boolean enabled);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndEnabledIsFalse
-            (String value, Role role, Pageable pageable);
+    Page<User> findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIs
+            (Role role, Collection<String> occupations, boolean enabled, Pageable pageable);
 
-    Page<User> findAllByRoleIsNotAndRoleIsAndEnabledIsFalse(Pageable pageable, Role admin, Role role);
-
-    Page<User> findAllByRoleIsNotAndRoleIsAndEnabledIsTrue(Pageable pageable, Role admin, Role role);
-
-    Page<User> findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsFalse(Pageable pageable, Role admin, Role role, String occupation);
-
-    Page<User> findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCaseAndEnabledIsTrue(Pageable pageable, Role admin, Role role, String occupation);
-
-    Page<User> findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIsFalse
-            (Role role, Collection<String> occupations, Pageable pageable);
-
-    Page<User> findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIsTrue
-            (Role role, Collection<String> occupations, Pageable pageable);
-
-    User findByIdAndRoleIsNot(String id, Role admin);
+    User findByIdAndRoleIsNot(String id, Role role);
 
     Page<User> findAllByDepartmentIsAndIdIsNot(Pageable pageable, Department department, String id);
 
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNot
             (String value, Department department, String id, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIsTrue
-            (String value, Department department, String id, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIs
+            (String value, Department department, String id, boolean enabled, Pageable pageable);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndDepartmentIsAndIdIsNotAndEnabledIsFalse
-            (String value, Department department, String id, Pageable pageable);
 
-    Page<User> findAllByDepartmentIsAndIdIsNotAndEnabledIsTrue(Pageable pageable, Department department, String id);
-
-    Page<User> findAllByDepartmentIsAndIdIsNotAndEnabledIsFalse(Pageable pageable, Department department, String id);
+    Page<User> findAllByDepartmentIsAndIdIsNotAndEnabledIs
+            (Pageable pageable, Department department, String id, boolean enabled);
 
     User findByIdAndDepartmentIs(String id, Department department);
 
     User findByDepartmentAndRole(Department department, Role role);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIsTrue
-            (String value, Department department, String id, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIs
+            (String value, Department department, String id, boolean enabled, Pageable pageable);
 
-    User findByIdAndEnabledIsTrue(String id);
+    User findByIdAndEnabledIs(String id, boolean enabled);
 
-    Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIsTrue(Pageable pageable, Role role);
+    Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIs(Pageable pageable, Role role, boolean enabled);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIsTrue
-            (String value, Role role, Pageable pageable);
-    Page<User> findAllByDepartmentIsAndEnabledIsTrue(Pageable pageable, Department department);
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIsTrue
-            (String value, Department department, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIs
+            (String value, Role role, boolean enabled, Pageable pageable);
+
+    Page<User> findAllByDepartmentIsAndEnabledIs(Pageable pageable, boolean enabled, Department department);
+
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIs
+            (String value, Department department, boolean enabled, Pageable pageable);
 }

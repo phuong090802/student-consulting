@@ -13,21 +13,20 @@ public interface DepartmentService {
 
     Page<Department> findAll(Pageable pageable);
 
-    Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String value, Pageable pageable);
+    Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase
+            (String value, Pageable pageable);
 
     Department findById(String id);
 
     boolean existsByNameAndIdIsNot(String name, String id);
 
-    Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsTrue(String value, Pageable pageable);
+    Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIs
+            (String value, boolean status, Pageable pageable);
 
-    Page<Department> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndStatusIsFalse(String value, Pageable pageable);
 
-    Page<Department> findAllByStatusIsTrue(Pageable pageable);
+    Page<Department> findAllByStatusIs(boolean status, Pageable pageable);
 
-    Page<Department> findAllByStatusIsFalse(Pageable pageable);
+    List<Department> findAllByStatusIs(boolean status);
 
-    List<Department> findAllByStatusIsTrue();
-
-    Department findByIdAndStatusIsTrue(String id);
+    Department findByIdAndStatusIs(String id, boolean status);
 }

@@ -5,17 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-public class BadRequestException extends RuntimeException {
+public class BadRequestException extends RuntimeException{
+    private String message;
     private String detail;
     private int code;
-
-    public BadRequestException(String message, String detail, int code) {
-        super(message);
-        this.detail = detail;
-        this.code = code;
-    }
 }

@@ -3,7 +3,6 @@ package com.ute.studentconsulting.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 
@@ -72,27 +71,35 @@ public class User {
     @JoinTable(name = "user_fields",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "field_id"))
-    private Set<Field> fields = new HashSet<>();
+    private Set<Field> fields;
 
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL)
-    private Set<RefreshToken> refreshTokens = new HashSet<>();
+    private Set<RefreshToken> refreshTokens;
 
-    @OneToMany(mappedBy = "user",
-            cascade = CascadeType.ALL)
-    private Set<Question> questions = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<Question> questions;
 
-    @OneToMany(mappedBy = "staff",
-            cascade = CascadeType.ALL)
-    private Set<Answer> answers = new HashSet<>();
+    @OneToMany(mappedBy = "staff", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<Answer> answers;
 
-    @OneToMany(mappedBy = "user1",
-            cascade = CascadeType.ALL)
-    private Set<Conversation> conversations1 = new HashSet<>();
+    @OneToMany(mappedBy = "user1", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<Conversation> conversations1;
 
-    @OneToMany(mappedBy = "user2",
-            cascade = CascadeType.ALL)
-    private Set<Conversation> conversations2 = new HashSet<>();
+    @OneToMany(mappedBy = "user2", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<Conversation> conversations2;
 
     @Override
     public String toString() {

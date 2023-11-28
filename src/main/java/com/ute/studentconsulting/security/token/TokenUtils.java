@@ -3,7 +3,7 @@ package com.ute.studentconsulting.security.token;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ute.studentconsulting.entity.RefreshToken;
-import com.ute.studentconsulting.exception.ServerException;
+import com.ute.studentconsulting.exception.InternalServerErrorException;
 import com.ute.studentconsulting.model.TokenModel;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -30,7 +30,7 @@ import java.util.UUID;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class TokenUtility {
+public class TokenUtils {
     @Value("${student-consulting.app.secret-key}")
     private String secretKey;
 
@@ -69,7 +69,9 @@ public class TokenUtility {
         } catch (UnsupportedJwtException e) {
             log.error("Token không được hỗ trợ: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            log.error("Claims string trống: {}", e.getMessage());
+            log.error("Chuỗi claims trống: {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("Lỗi kiểm tra token: {}", e.getMessage());
         }
         return false;
     }
@@ -119,9 +121,8 @@ public class TokenUtility {
                     true);
         } catch (JsonProcessingException e) {
             log.error("Lỗi mã hóa token object thành JSON: {}", e.getMessage());
-            throw new ServerException("Lỗi mã hóa token object thành JSON", e.getMessage(), 10011);
+            throw new InternalServerErrorException("Lỗi mã hóa token object thành JSON", e.getMessage(), 10012);
         }
-
     }
 
     public ResponseCookie clearCookie() {

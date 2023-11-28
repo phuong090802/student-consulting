@@ -1,4 +1,4 @@
-package com.ute.studentconsulting.utility;
+package com.ute.studentconsulting.utils;
 
 import com.ute.studentconsulting.entity.User;
 import com.ute.studentconsulting.exception.UnauthorizedException;
@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
-public class AuthUtility {
+public class AuthUtils {
     private final UserService userService;
 
     public User getCurrentUser() {
@@ -20,6 +20,6 @@ public class AuthUtility {
         if (!Objects.equals(principal.toString(), "anonymousUser")) {
             return userService.findById(((UserDetailsImpl) principal).getId());
         }
-        throw new UnauthorizedException("Lỗi lấy người dùng hiện tại", "Lỗi lấy người dùng hiện tại thông qua token", 10012);
+        throw new UnauthorizedException("Lỗi lấy người dùng hiện tại", "Lỗi lấy người dùng hiện tại thông qua token", 10011);
     }
 }

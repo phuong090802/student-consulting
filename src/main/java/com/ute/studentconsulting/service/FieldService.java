@@ -16,19 +16,24 @@ public interface FieldService {
 
     Field findById(String id);
 
-    void deleteById(String id);
-
-    Page<Field> findByNameContaining(String value, Pageable pageable);
-
     Page<Field> findAll(Pageable pageable);
 
-    List<Field> findAllByIdIn(Collection<String> ids);
+    List<Field> findAllByIdInAndStatusIs(Collection<String> ids, boolean status);
 
     Page<Field> findAllByIdIn(Pageable pageable, Collection<String> ids);
 
-    Page<Field> findByNameContainingAndIdIn(String value, Collection<String> ids, Pageable pageable);
+    Page<Field> findByNameContainingIgnoreCaseAndIdIn
+            (String value, Collection<String> ids, Pageable pageable);
 
-    List<Field> findAllByIdIsNotIn(Collection<String> ids);
-    List<Field> findAll();
+    List<Field> findAllByIdIsNotInAndStatusIs(Collection<String> ids, boolean status);
+
+    List<Field> findAllByStatusIs(boolean status);
+
+    Page<Field> findAllByStatusIs(boolean status, Pageable pageable);
+
+    Page<Field> findByNameContainingIgnoreCaseAndStatusIs(String value, boolean status, Pageable pageable);
+
+    Page<Field> findByNameContainingIgnoreCase(String value, Pageable pageable);
+    List<Field> findAllByIdIn(Collection<String> ids);
 
 }

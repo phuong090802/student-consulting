@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -35,7 +34,7 @@ public class RefreshToken {
     private RefreshToken parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RefreshToken> children = new HashSet<>();
+    private Set<RefreshToken> children;
 
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,

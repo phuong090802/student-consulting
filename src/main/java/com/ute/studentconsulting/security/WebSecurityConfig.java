@@ -1,7 +1,7 @@
 package com.ute.studentconsulting.security;
 
 import com.ute.studentconsulting.security.service.impl.UserDetailsServiceImpl;
-import com.ute.studentconsulting.security.token.AuthAccessDeniedToken;
+import com.ute.studentconsulting.security.token.AuthAccessDenied;
 import com.ute.studentconsulting.security.token.AuthEntryPointToken;
 import com.ute.studentconsulting.security.token.AuthTokenFilter;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +33,7 @@ import java.util.List;
 public class WebSecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointToken unauthorizedHandler;
-    private final AuthAccessDeniedToken accessDeniedHandler;
-
+    private final AuthAccessDenied accessDeniedHandler;
     @Bean
     public AuthTokenFilter authenticationAccessTokenFilter() {
         return new AuthTokenFilter();

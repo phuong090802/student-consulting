@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ForwardQuestionServiceImpl implements ForwardQuestionService {
     private final ForwardQuestionRepository forwardQuestionRepository;
+
     @Override
     public void save(ForwardQuestion forwardQuestion) {
         forwardQuestionRepository.save(forwardQuestion);
