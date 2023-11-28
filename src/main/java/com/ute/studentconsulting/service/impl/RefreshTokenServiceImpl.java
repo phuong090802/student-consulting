@@ -1,6 +1,7 @@
 package com.ute.studentconsulting.service.impl;
 
 import com.ute.studentconsulting.entity.RefreshToken;
+import com.ute.studentconsulting.entity.User;
 import com.ute.studentconsulting.repository.RefreshTokenRepository;
 import com.ute.studentconsulting.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
+
+    @Override
+    @Transactional
+    public void deleteByUser(User user) {
+        refreshTokenRepository.deleteByUser(user);
+    }
 
     @Override
     @Transactional

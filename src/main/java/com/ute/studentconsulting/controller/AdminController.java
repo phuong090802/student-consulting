@@ -2,17 +2,17 @@ package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.*;
 import com.ute.studentconsulting.exception.BadRequestException;
+import com.ute.studentconsulting.firebase.service.FireBaseService;
+import com.ute.studentconsulting.model.NewsModel;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.model.StaffModel;
 import com.ute.studentconsulting.model.UserModel;
 import com.ute.studentconsulting.payload.UserPayload;
+import com.ute.studentconsulting.payload.request.NewsRequest;
 import com.ute.studentconsulting.payload.response.ApiSuccessResponse;
 import com.ute.studentconsulting.payload.response.ErrorResponse;
 import com.ute.studentconsulting.payload.response.SuccessResponse;
-import com.ute.studentconsulting.service.DepartmentService;
-import com.ute.studentconsulting.service.FieldService;
-import com.ute.studentconsulting.service.RoleService;
-import com.ute.studentconsulting.service.UserService;
+import com.ute.studentconsulting.service.*;
 import com.ute.studentconsulting.util.SortUtils;
 import com.ute.studentconsulting.util.UserUtils;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +46,94 @@ public class AdminController {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final SortUtils sortUtils;
+    private final NewsService newsService;
+    private final FireBaseService fireBaseService;
+
+    @GetMapping("/news")
+    public ResponseEntity<?> getAllNews(
+            @RequestParam(required = false, name = "value") String value,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "3") int size,
+            @RequestParam(defaultValue = "date, asc", name = "sort") String[] sort) {
+        return handleGetAllNews(value, page, size, sort);
+    }
+
+    private ResponseEntity<?> handleGetAllNews(String value, int page, int size, String[] sort) {
+        var orders = sortUtils.sortOrders(sort);
+        var pageable = PageRequest.of(page, size, Sort.by(orders));
+        var allNewsPage = (value == null)
+                ? newsService.findAll(pageable)
+                : newsService.findAllByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(value, pageable);
+        var simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        var allNews = allNewsPage.stream().map(news ->
+                new NewsModel(news.getId(), news.getTitle(), news.getContent(),
+                        simpleDateFormat.format(news.getDate()), news.getFileUrl())).toList();
+        var response = new PaginationModel<>(
+                allNews, allNewsPage.getNumber(),
+                allNewsPage.getTotalPages());
+        return ResponseEntity.ok(new ApiSuccessResponse<>(response));
+    }
+
+
+    @DeleteMapping("/news/{id}")
+    public ResponseEntity<?> deleteNews(@PathVariable("id") String id) {
+        return handleDeleteNews(id);
+    }
+
+    private ResponseEntity<?> handleDeleteNews(String id) {
+        var news = newsService.findById(id);
+        if (news.getBlobId() != null) {
+            fireBaseService.deleteFile(news.getBlobId());
+        }
+        newsService.deleteById(id);
+        return ResponseEntity.ok(new SuccessResponse("Xóa thông báo thành công"));
+    }
+
+    @PutMapping("/news/{id}")
+    public ResponseEntity<?> updateNews(@PathVariable("id") String id, @RequestBody NewsRequest request) {
+        return handleUpdateNews(id, request);
+    }
+
+    private ResponseEntity<?> handleUpdateNews(String id, NewsRequest request) {
+        validationNews(request);
+        var news = newsService.findById(id);
+        news.setTitle(request.getTitle());
+        news.setContent(request.getContent());
+        if (StringUtils.hasText(request.getBlobId()) && StringUtils.hasText(request.getFileUrl())) {
+            if (news.getBlobId() != null) {
+                fireBaseService.deleteFile(news.getBlobId());
+            }
+            news.setBlobId(request.getBlobId());
+            news.setFileUrl(request.getFileUrl());
+        }
+        return ResponseEntity.ok(new SuccessResponse("Cập nhật thông báo thành công"));
+    }
+
+    @PostMapping("/news")
+    public ResponseEntity<?> addNews(@RequestBody NewsRequest request) {
+        return handleAddNews(request);
+    }
+
+    private ResponseEntity<?> handleAddNews(NewsRequest request) {
+        validationNews(request);
+        var news = new News(request.getTitle(), request.getContent(), new Date());
+        if (StringUtils.hasText(request.getBlobId()) && StringUtils.hasText(request.getFileUrl())) {
+            news.setBlobId(request.getBlobId());
+            news.setFileUrl(request.getFileUrl());
+        }
+        newsService.save(news);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new SuccessResponse("Đăng thông báo thành công"));
+    }
+
+    private void validationNews(NewsRequest request) {
+        if (!StringUtils.hasText(request.getTitle())) {
+            throw new BadRequestException("Tiêu đề thông báo không thể trống", "Tên thông báo được nhập đang trống", 10082);
+        }
+        if (!StringUtils.hasText(request.getContent())) {
+            throw new BadRequestException("Nội dung thông báo không thể trống", "Nội dung thông báo được nhập đang trống", 10083);
+        }
+    }
 
     @GetMapping("/users/{id}/departments")
     public ResponseEntity<?> getDepartmentOfUser(
@@ -55,7 +146,7 @@ public class AdminController {
         var department = user.getDepartment();
         if (department == null) {
             throw new BadRequestException("Người dùng hiện không nằm trong phòng ban nào cả",
-                    "Người dùng: " + user + " hiện không nằm trong phòng ban nào cả", 10020);
+                    "Người dùng: %s hiện không nằm trong phòng ban nào cả".formatted(user), 10020);
         }
         return ResponseEntity.ok(new ApiSuccessResponse<>(department));
     }
@@ -74,9 +165,9 @@ public class AdminController {
         var orders = sortUtils.sortOrders(sort);
         var pageable = PageRequest.of(page, size, Sort.by(orders));
         var userPage = (value == null) ?
-                userService.findAllByRoleIsAndDepartmentIsNullAndEnabledIs(pageable, roleCounsellor, true)
-                : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIs(
-                value, roleCounsellor, true, pageable
+                userService.findAllByRoleIsAndDepartmentIsNull(pageable, roleCounsellor)
+                : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNull(
+                value, roleCounsellor, pageable
         );
         var staffs = userUtils.mapUserPageToStaffModels(userPage);
         var response = new PaginationModel<>(staffs,
@@ -127,14 +218,14 @@ public class AdminController {
         if (departmentHead != null) {
             userPage = (value == null) ?
                     userService.findAllByDepartmentIsAndIdIsNotAndEnabledIs(pageable, department, departmentHead.getId(), true)
-                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIs(
-                    value, department, departmentHead.getId(), true, pageable
+                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNot(
+                    value, department, departmentHead.getId(), pageable
             );
         } else {
             userPage = (value == null) ?
-                    userService.findAllByDepartmentIsAndEnabledIs(pageable, true, department)
-                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIs(
-                    value, department, true, pageable);
+                    userService.findAllByDepartmentIs(pageable, department)
+                    : userService.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIs(
+                    value, department, pageable);
         }
 
         var staffs = userUtils.mapUserPageToStaffModels(userPage);
@@ -170,7 +261,7 @@ public class AdminController {
             return ResponseEntity.ok(new SuccessResponse("Thêm tư vấn viên vào phòng ban thành công"));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Lỗi thêm tư vấn viên vào phòng ban",
-                "Lỗi người được thêm vào phòng ban không phải là tư vấn viên, thông tin người dùng: " + user, 10021));
+                "Lỗi người được thêm vào phòng ban không phải là tư vấn viên, thông tin người dùng: %s".formatted(user), 10021));
     }
 
 
@@ -464,7 +555,6 @@ public class AdminController {
         var occupations = List.of("Sinh Viên", "Phụ Huynh", "Học Sinh", "Cựu Sinh Viên");
         var roleObj = getRoleByName(role);
 
-
         var userPage = switch (status) {
             case "enabled" -> getUserStatusIsEnabled(roleObj, value, occupation, pageable, admin, occupations);
             case "disabled" -> getUserStatusIsDisabled(roleObj, value, occupation, pageable, admin, occupations);
@@ -490,12 +580,12 @@ public class AdminController {
         var roleNameMap = Map.of("counsellor", RoleName.ROLE_COUNSELLOR, "supervisor", RoleName.ROLE_SUPERVISOR);
 
         if (!validRoles.contains(request.getRole())) {
-            throw new BadRequestException("Quyền truy cập không hợp lệ", "Giá trị " + request.getRole() + " không hợp lệ", 10022);
+            throw new BadRequestException("Quyền truy cập không hợp lệ", "Giá trị %s không hợp lệ".formatted(request.getRole()), 10022);
         }
 
         var role = roleService.findByName(roleNameMap.get(request.getRole()));
         if (role == null) {
-            throw new BadRequestException("Quyền truy cập không hợp lệ", "Giá trị " + request.getRole() + " không hợp lệ", 10023);
+            throw new BadRequestException("Quyền truy cập không hợp lệ", "Giá trị %s không hợp lệ".formatted(request.getRole()), 10023);
         }
 
         var user = new User(request.getName(),
@@ -594,7 +684,7 @@ public class AdminController {
             throw new BadRequestException("Tên khoa không để thể trống", "Tên khoa hiện được nhập đang trống", 10024);
         }
         if (departmentService.existsByName(name)) {
-            throw new BadRequestException("Khoa đã tồn tại", "Tên khoa" + name + " đã tồn tại", 10025);
+            throw new BadRequestException("Khoa đã tồn tại", "Tên khoa %s đã tồn tại".formatted(name), 10025);
         }
     }
 
@@ -605,7 +695,7 @@ public class AdminController {
         }
 
         if (departmentService.existsByNameAndIdIsNot(name, id)) {
-            throw new BadRequestException("Khoa đã tồn tại", "Tên khoa" + name + " đã tồn tại", 10027);
+            throw new BadRequestException("Khoa đã tồn tại", "Tên khoa %s đã tồn tại".formatted(name), 10027);
         }
     }
 
@@ -615,7 +705,7 @@ public class AdminController {
             throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực hiện được nhập đang trống", 10028);
         }
         if (fieldService.existsByName(name)) {
-            throw new BadRequestException("Tên lĩnh vực đã tồn tại", "Tên lĩnh vực" + name + " đã tồn tại", 10029);
+            throw new BadRequestException("Tên lĩnh vực đã tồn tại", "Tên lĩnh vực %s đã tồn tại".formatted(name), 10029);
         }
     }
 
@@ -626,7 +716,7 @@ public class AdminController {
         }
 
         if (fieldService.existsByNameAndIdIsNot(name, id)) {
-            throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực" + name + " đã tồn tại", 10031);
+            throw new BadRequestException("Tên lĩnh vực không thể để trống", "Tên lĩnh vực %s đã tồn tại".formatted(name), 10031);
         }
     }
 }

@@ -9,6 +9,11 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         #format_sql: true
         #show_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: phuongjihn@gmail.com
+    password: augopberblzgosgn
 
 student-consulting:
   app:
@@ -18,10 +23,12 @@ student-consulting:
 
     refresh-token-expires-ms: 604800000
     cookie-name: refreshToken
+    reset-password-expires-ms: 1800000
+    #reset-password-expires-ms: 10000
 
-#firebase:
-  #configuration-file: ./serviceAccountKey.json
-  #bucket: student-consulting-c6397.appspot.com
+firebase:
+  configuration-file: ./serviceAccountKey.json
+  bucket: student-consulting-c6397.appspot.com
 
 frontend:
   local:

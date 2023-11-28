@@ -18,40 +18,47 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class QuestionServiceImpl implements QuestionService {
     @Override
-    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIs
-            (String value, Department department, Pageable pageable) {
+    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndStatusIsNot
+            (String value, Department department, int status, Pageable pageable) {
         return questionRepository
-                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIs
-                        (value, department, pageable);
+                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndStatusIsNot
+                        (value, department, status, pageable);
     }
 
     @Override
-    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIs
-            (String value, Field field, Pageable pageable) {
+    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIsAndStatusIsNot
+            (String value, Field field, int status, Pageable pageable) {
         return questionRepository
-                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIs(value, field, pageable);
+                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIsAndStatusIsNot(value, field, status, pageable);
     }
 
     @Override
-    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase
-            (String value, Pageable pageable) {
+    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndStatusIsNot
+            (String value, int status, Pageable pageable) {
         return questionRepository
-                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(value, value, pageable);
+                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndStatusIsNot(value, value, status, pageable);
     }
 
     @Override
     public Question findById(String id) {
         return questionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy câu hỏi",
-                        "Không tìm thấy câu hỏi với id: " + id, 10004));
+                        "Không tìm thấy câu hỏi với id: %s".formatted(id), 10004));
     }
 
     @Override
-    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIs
-            (String value, Department department, Field field, Pageable pageable) {
+    public Question findByIdAndStatusIsNot(String id, int status) {
+        return questionRepository.findByIdAndStatusIsNot(id, status)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy câu hỏi",
+                        "Không tìm thấy câu hỏi với id: %s và trạng thái không phải là: %s".formatted(id, status), 10004));
+    }
+
+    @Override
+    public Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIsAndStatusIsNot
+            (String value, Department department, Field field, int status, Pageable pageable) {
         return questionRepository
-                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIs
-                        (value, department, field, pageable);
+                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIsAndStatusIsNot
+                        (value, department, field, status, pageable);
     }
 
     private final QuestionRepository questionRepository;
@@ -68,9 +75,9 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public Page<Question> findAllByFieldIs(Field field, Pageable pageable) {
+    public Page<Question> findAllByFieldIsAndStatusIsNot(Field field, int status, Pageable pageable) {
         return questionRepository
-                .findAllByFieldIs(field, pageable);
+                .findAllByFieldIsAndStatusIsNot(field, status, pageable);
     }
 
     @Override
@@ -87,19 +94,29 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
+    public Page<Question> findAllByDepartmentIsAndStatusIsNot
+            (Department department, Integer status, Pageable pageable) {
+        return questionRepository.findAllByDepartmentIsAndStatusIsNot
+                (department, status, pageable);
+    }
+
+    @Override
+    public Page<Question> findAllByFieldIsAndDepartmentIsAndStatusIsNot
+            (Field field, Department department, Integer status, Pageable pageable) {
+        return questionRepository
+                . findAllByFieldIsAndDepartmentIsAndStatusIsNot
+                        (field, department, status, pageable);
+    }
+
+    @Override
     public boolean existsByStatusIsAndFieldIs(int status, Field field) {
         return questionRepository
                 .existsByStatusIsAndFieldIs(status, field);
     }
 
     @Override
-    public Page<Question> findAll(Pageable pageable) {
-        return questionRepository.findAll(pageable);
+    public Page<Question> findAllByStatusIsNot(int status, Pageable pageable) {
+        return questionRepository.findAllByStatusIsNot(status, pageable);
     }
 
-    @Override
-    public Page<Question> findAllByDepartmentIsAndFieldIs(Department department, Field field, Pageable pageable) {
-        return questionRepository
-                .findAllByDepartmentIsAndFieldIs(department, field, pageable);
-    }
 }

@@ -81,7 +81,7 @@ public class FieldServiceImpl implements FieldService {
         return fieldRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "Không tìm thấy lĩnh vực",
-                        "Không tìm thấy lĩnh vực với id: " + id,
+                        "Không tìm thấy lĩnh vực với id: %s" .formatted(id),
                         10003));
     }
 

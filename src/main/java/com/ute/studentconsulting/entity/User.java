@@ -1,8 +1,10 @@
 package com.ute.studentconsulting.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.Set;
 
 
@@ -33,6 +35,7 @@ public class User {
     private String phone;
 
     @NonNull
+    @JsonIgnore
     @Column(name = "password")
     private String password;
 
@@ -48,6 +51,12 @@ public class User {
 
     @Column(name = "occupation")
     private String occupation;
+
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_expire")
+    private Date resetPasswordExpire;
 
     @NonNull
     @ManyToOne(cascade = {
@@ -89,17 +98,17 @@ public class User {
     })
     private Set<Answer> answers;
 
-    @OneToMany(mappedBy = "user1", cascade = {
+    @OneToMany(mappedBy = "staff", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    private Set<Conversation> conversations1;
+    private Set<Conversation> staffConversations;
 
-    @OneToMany(mappedBy = "user2", cascade = {
+    @OneToMany(mappedBy = "user", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    private Set<Conversation> conversations2;
+    private Set<Conversation> userConversations;
 
     @Override
     public String toString() {

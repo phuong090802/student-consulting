@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -89,6 +90,10 @@ public class WebSecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(httpSecurityHeadersConfigurer ->
+                        httpSecurityHeadersConfigurer
+                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+                                .httpStrictTransportSecurity(HeadersConfigurer.HstsConfig::disable))
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler)
                         .accessDeniedHandler(accessDeniedHandler))
@@ -98,7 +103,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/api/department-head/**").hasRole("DEPARTMENT_HEAD")
                                 .requestMatchers("/api/staff/**").hasAnyRole("COUNSELLOR", "DEPARTMENT_HEAD")
-                                .requestMatchers("/api/users/**").hasRole("USER")
+                                .requestMatchers("/api/conversations/**").hasAnyRole("USER","COUNSELLOR", "DEPARTMENT_HEAD")
                                 .anyRequest().permitAll()
                 )
                 .authenticationProvider(authenticationProvider())

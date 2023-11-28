@@ -132,14 +132,16 @@ public class AuthController {
             }
             refreshTokenService.deleteById(parent.getToken());
         } else {
+            var bytes = Base64.getUrlDecoder().decode(tokenValue);
+            var jsonValue = new String(bytes, StandardCharsets.UTF_8);
+            TokenModel tokenObj;
             try {
-                var bytes = Base64.getUrlDecoder().decode(tokenValue);
-                var jsonValue = new String(bytes, StandardCharsets.UTF_8);
-                var tokenObj = objectMapper.readValue(jsonValue, TokenModel.class);
+                tokenObj = objectMapper.readValue(jsonValue, TokenModel.class);
                 refreshTokenService.deleteById(tokenObj.getP());
-            } catch (JsonProcessingException e) {
-                log.error("Lỗi dữ liệu JSON không hợp lệ trong token, lỗi lấy phân tích cú pháp token: {}, token: {}", e.getMessage(), tokenValue);
+            } catch (JsonProcessingException ignored) {
+
             }
+
         }
         return badRequest();
     }

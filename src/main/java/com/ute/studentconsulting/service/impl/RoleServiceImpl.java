@@ -17,6 +17,6 @@ public class RoleServiceImpl implements RoleService {
     public Role findByName(RoleName name) {
         return roleRepository.findByName(name)
                 .orElseThrow(() -> new NotFoundException("Quyền truy cập không hợp lệ",
-                        "Không tìm thấy quyền truy cập với tên là: " + name, 10005));
+                        "Không tìm thấy quyền truy cập với tên là: %s".formatted(name), 10005));
     }
 }

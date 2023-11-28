@@ -48,7 +48,7 @@ public class UserUtils {
         var email = request.getEmail().trim();
         var matcherEmail = patternEmail.matcher(email);
         if (!matcherEmail.matches()) {
-            throw new BadRequestException("Email không đúng định dạng", "Email " + email + " không đúng định dạng", 10048);
+            throw new BadRequestException("Email không đúng định dạng", "Email %s không đúng định dạng".formatted(email), 10048);
         }
 
         var patternPhone = Pattern.compile(PHONE_REGEX);
@@ -56,13 +56,13 @@ public class UserUtils {
         var matcherPhone = patternPhone.matcher(phone);
         if (!matcherPhone.matches()) {
             throw new BadRequestException("Số điện thoại không đúng định dạng",
-                    "Số điện thoại " + phone + " không đúng định dạng", 10049);
+                    "Số điện thoại %s không đúng định dạng".formatted(phone), 10049);
         }
         if (userService.existsByEmail(request.getEmail())) {
-            throw new ConflictException("Email đã tồn tại", "Email " + email + " đã tồn tại trong hệ thống", 10050);
+            throw new ConflictException("Email đã tồn tại", "Email %s đã tồn tại trong hệ thống".formatted(email), 10050);
         }
         if (userService.existsByPhone(request.getPhone())) {
-            throw new ConflictException("Số điện thoại đã tồn tại", "Số điện thoại " + phone + " đã tồn tại trong hệ thống", 10051);
+            throw new ConflictException("Số điện thoại đã tồn tại", "Số điện thoại %s đã tồn tại trong hệ thống".formatted(phone), 10051);
         }
     }
 

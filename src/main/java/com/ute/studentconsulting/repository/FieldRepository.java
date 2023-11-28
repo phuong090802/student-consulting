@@ -20,10 +20,14 @@ public interface FieldRepository extends JpaRepository<Field, String> {
     Page<Field> findByNameContainingIgnoreCaseAndIdIn(String value, Collection<String> ids, Pageable pageable);
 
     List<Field> findAllByIdIsNotInAndStatusIs(Collection<String> ids, Boolean status);
+
     Page<Field> findAllByStatusIs(Boolean status, Pageable pageable);
 
     Page<Field> findByNameContainingIgnoreCaseAndStatusIs(String value, Boolean status, Pageable pageable);
+
     Page<Field> findByNameContainingIgnoreCase(String value, Pageable pageable);
+
     List<Field> findAllByStatusIs(Boolean status);
+
     List<Field> findAllByIdIn(Collection<String> ids);
 }

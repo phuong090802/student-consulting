@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        div {
+            margin-bottom: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: blue;
+        }
+
+        strong {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div>
+    Vui lòng truy cập vào để đặt lại mật khẩu:
+    <a th:href="@{${resetUrl}}">Đặt lại mật khẩu</a><br>
+    <strong>Nếu bạn không yêu cầu đặt lại mật khẩu thì hãy bỏ qua nó</strong>
+</div>
+</body>
+</html>

@@ -19,22 +19,29 @@ public interface QuestionService {
 
     boolean existsByStatusIsAndFieldIs(int status, Field field);
 
-    Page<Question> findAll(Pageable pageable);
+    Page<Question> findAllByStatusIsNot(int status, Pageable pageable);
 
-    Page<Question> findAllByDepartmentIsAndFieldIs(Department department, Field field, Pageable pageable);
+    Page<Question> findAllByFieldIsAndStatusIsNot(Field field, int status, Pageable pageable);
 
-    Page<Question> findAllByFieldIs(Field field, Pageable pageable);
+    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndStatusIsNot
+            (String value, Department department, int status, Pageable pageable);
 
-    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIs
-            (String value, Department department, Pageable pageable);
+    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIsAndStatusIsNot
+            (String value, Department department, Field field, int status, Pageable pageable);
 
-    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIs
-            (String value, Department department, Field field, Pageable pageable);
+    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIsAndStatusIsNot
+            (String value, Field field, int status, Pageable pageable);
 
-    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIs
-            (String value, Field field, Pageable pageable);
+    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndStatusIsNot
+            (String value, int status, Pageable pageable);
 
-    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase
-            (String value, Pageable pageable);
     Question findById(String id);
+
+    Question findByIdAndStatusIsNot(String id, int status);
+
+    Page<Question> findAllByDepartmentIsAndStatusIsNot(Department department, Integer status, Pageable pageable);
+
+    Page<Question> findAllByFieldIsAndDepartmentIsAndStatusIsNot
+            (Field field, Department department, Integer status, Pageable pageable);
+
 }

@@ -1,7 +1,6 @@
 package com.ute.studentconsulting.repository;
 
 import com.ute.studentconsulting.entity.Department;
-import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,7 +27,6 @@ public interface DepartmentRepository extends JpaRepository<Department, String> 
 
     Page<Department> findAllByStatusIs(Boolean status, Pageable pageable);
 
-    @NonNull
     List<Department> findAllByStatusIs(Boolean status);
 
     Optional<Department> findByIdAndStatusIs(String id, Boolean status);

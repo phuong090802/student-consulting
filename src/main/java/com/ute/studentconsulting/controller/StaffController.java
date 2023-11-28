@@ -1,9 +1,6 @@
 package com.ute.studentconsulting.controller;
 
-import com.ute.studentconsulting.entity.Answer;
-import com.ute.studentconsulting.entity.Field;
-import com.ute.studentconsulting.entity.ForwardQuestion;
-import com.ute.studentconsulting.entity.Question;
+import com.ute.studentconsulting.entity.*;
 import com.ute.studentconsulting.exception.BadRequestException;
 import com.ute.studentconsulting.model.PaginationModel;
 import com.ute.studentconsulting.model.QuestionModel;
@@ -39,6 +36,33 @@ public class StaffController {
     private final AnswerService answerService;
     private final DepartmentService departmentService;
     private final ForwardQuestionService forwardQuestionService;
+    private final ConversationService conversationService;
+    private final MessageService messageService;
+
+    @PostMapping("/messages")
+    public ResponseEntity<?> sendMessage(@RequestBody AnswerRequest request) {
+        return handleSendMessage(request);
+    }
+
+    private ResponseEntity<?> handleSendMessage(AnswerRequest request) {
+        var sender = authUtils.getCurrentUser();
+        var question = questionService.findById(request.getQuestionId());
+        question.setStatus(2);
+        questionService.save(question);
+        var receiver = question.getUser();
+        var conversation = findOrCreateConversation(sender, receiver);
+        var message = new Message(request.getContent(), new Date(), false, conversation, sender);
+        messageService.save(message);
+        return ResponseEntity.ok(new SuccessResponse("Gửi tin nhắn thành công"));
+    }
+
+    private Conversation findOrCreateConversation(User sender, User receiver) {
+        var conversation = conversationService.findByStaffIsAndUserIs(sender, receiver);
+        if (conversation == null) {
+            return conversationService.save(new Conversation(sender, receiver));
+        }
+        return conversation;
+    }
 
     @PatchMapping("/questions/{questionId}/departments/{departmentId}")
     public ResponseEntity<?> forwardQuestion(@PathVariable("questionId") String questionId,
@@ -53,7 +77,7 @@ public class StaffController {
         var ids = toDepartment.getFields().stream().map(Field::getId).toList();
         if (!ids.contains(question.getField().getId())) {
             throw new BadRequestException("Phòng ban mới không hỗ trợ lĩnh vực này",
-                    "Phòng ban nhận câu hỏi chuyển tiếp không hỗ trợ lĩnh vực này: " + question.getField().getId(), 10037);
+                    "Phòng ban nhận câu hỏi chuyển tiếp không hỗ trợ lĩnh vực này: %s".formatted(question.getField().getId()), 10037);
         }
         question.setDepartment(toDepartment);
         questionService.save(question);
@@ -91,7 +115,7 @@ public class StaffController {
         question.setStatus(1);
         questionService.save(question);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new SuccessResponse(true, "Trả lời câu hỏi thành công"));
+                .body(new SuccessResponse("Trả lời câu hỏi thành công"));
     }
 
     @GetMapping("/questions/had-questions")

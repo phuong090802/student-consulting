@@ -108,21 +108,21 @@ public class TokenUtils {
                 true);
     }
 
-    public RefreshToken generateRefreshToken(String parent) {
+    public RefreshToken generateRefreshToken(String parent)  {
+        var secureRandom = new SecureRandom();
+        var tokenObj = new TokenModel(String.valueOf(secureRandom.nextLong()), parent);
+        String json;
         try {
-            var secureRandom = new SecureRandom();
-            var tokenObj = new TokenModel(String.valueOf(secureRandom.nextLong()), parent);
-            var json = objectMapper.writeValueAsString(tokenObj);
-            var bytes = json.getBytes(StandardCharsets.UTF_8);
-            var token = Base64.getUrlEncoder().encodeToString(bytes);
-            return new RefreshToken(
-                    token,
-                    new Date(new Date().getTime() + refreshTokenExpiresMs),
-                    true);
+            json = objectMapper.writeValueAsString(tokenObj);
         } catch (JsonProcessingException e) {
-            log.error("Lỗi mã hóa token object thành JSON: {}", e.getMessage());
-            throw new InternalServerErrorException("Lỗi mã hóa token object thành JSON", e.getMessage(), 10012);
+            throw new InternalServerErrorException("Lỗi tạo refresh token", e.getMessage(), 10012);
         }
+        var bytes = json.getBytes(StandardCharsets.UTF_8);
+        var token = Base64.getUrlEncoder().encodeToString(bytes);
+        return new RefreshToken(
+                token,
+                new Date(new Date().getTime() + refreshTokenExpiresMs),
+                true);
     }
 
     public ResponseCookie clearCookie() {

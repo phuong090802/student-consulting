@@ -68,6 +68,10 @@ public class Department {
     })
     private Set<ForwardQuestion> receiveQuestions;
 
+    @OneToMany(mappedBy = "department",
+            cascade = CascadeType.ALL)
+    private Set<FAQ> faqs;
+
     @Override
     public String toString() {
         return "Department{" +

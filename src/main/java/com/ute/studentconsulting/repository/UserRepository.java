@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, String> {
@@ -137,26 +139,32 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("SELECT u FROM User u " +
             "WHERE (LOWER(u.name) LIKE %:value% OR LOWER(u.email) LIKE %:value%) " +
-            "AND u.department = :department AND u.id <> :id AND u.enabled = :enabled  ")
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIs
-            (@Param("value") String value, @Param("department") Department department, @Param("id") String id, @Param("enabled") Boolean enabled, Pageable pageable);
+            "AND u.department = :department AND u.id <> :id ")
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNot
+            (@Param("value") String value, @Param("department") Department department, @Param("id") String id, Pageable pageable);
 
     Optional<User> findByIdAndEnabledIs(String id, Boolean enabled);
 
-    Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIs(Pageable pageable, Role role, Boolean enabled);
+    Page<User> findAllByRoleIsAndDepartmentIsNull(Pageable pageable, Role role);
 
     @Query("SELECT u FROM User u " +
             "WHERE (LOWER(u.name) LIKE %:value% OR LOWER(u.email) LIKE %:value%) " +
-            "AND u.role = :role AND u.enabled = :enabled  ")
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIs
-            (@Param("value") String value, @Param("role") Role role, @Param("enabled") Boolean enabled, Pageable pageable);
+            "AND u.role = :role ")
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNull
+            (@Param("value") String value, @Param("role") Role role, Pageable pageable);
 
-    Page<User> findAllByDepartmentIsAndEnabledIs(Pageable pageable, Boolean enabled, Department department);
+    Page<User> findAllByDepartmentIs(Pageable pageable, Department department);
 
     @Query("SELECT u FROM User u " +
             "WHERE (LOWER(u.name) LIKE %:value% OR LOWER(u.email) LIKE %:value%) " +
-            "AND u.department = :department AND u.enabled = :enabled  ")
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIs
-            (@Param("value") String value, @Param("department") Department department,
-             @Param("enabled") Boolean enabled, Pageable pageable);
+            "AND u.department = :department ")
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIs
+            (@Param("value") String value, @Param("department") Department department, Pageable pageable);
+
+    List<User> findAllByIdIn(Collection<String> ids);
+
+    Optional<User> findByEmailAndEnabledIs(String email, Boolean enabled);
+
+    Optional<User> findByResetPasswordTokenAndResetPasswordExpireAfter
+            (String resetPasswordToken, Date current);
 }

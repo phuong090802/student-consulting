@@ -34,6 +34,7 @@ public interface FieldService {
     Page<Field> findByNameContainingIgnoreCaseAndStatusIs(String value, boolean status, Pageable pageable);
 
     Page<Field> findByNameContainingIgnoreCase(String value, Pageable pageable);
+
     List<Field> findAllByIdIn(Collection<String> ids);
 
 }

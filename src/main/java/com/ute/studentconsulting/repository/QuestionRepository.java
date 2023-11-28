@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, String> {
 
@@ -21,25 +22,33 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
 
     Boolean existsByStatusIsAndFieldIs(Integer status, Field field);
 
-    Page<Question> findAllByDepartmentIsAndFieldIs(Department department, Field field, Pageable pageable);
+    Page<Question> findAllByDepartmentIsAndFieldIsAndStatusIsNot(Department department, Field field, Integer status, Pageable pageable);
 
-    Page<Question> findAllByFieldIs(Field field, Pageable pageable);
-
-    @Query("SELECT q FROM Question q WHERE (LOWER(q.title) LIKE %:value% OR LOWER(q.content) LIKE %:value%) " +
-            "AND q.department = :department ")
-    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIs
-            (@Param("value") String value, @Param("department") Department department, Pageable pageable);
+    Page<Question> findAllByFieldIsAndStatusIsNot(Field field, Integer status, Pageable pageable);
 
     @Query("SELECT q FROM Question q WHERE (LOWER(q.title) LIKE %:value% OR LOWER(q.content) LIKE %:value%) " +
-            "AND q.department = :department AND q.field = :field ")
-    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIs
-            (@Param("value") String value, @Param("department") Department department, @Param("field") Field field, Pageable pageable);
+            "AND q.department = :department AND q.status <> :status ")
+    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndStatusIsNot
+            (@Param("value") String value, @Param("department") Department department, @Param("status") Integer status, Pageable pageable);
 
     @Query("SELECT q FROM Question q WHERE (LOWER(q.title) LIKE %:value% OR LOWER(q.content) LIKE %:value%) " +
-            "AND q.field = :field ")
-    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIs
-            (@Param("value") String value, @Param("field") Field field, Pageable pageable);
+            "AND q.department = :department AND q.field = :field AND q.status <> :status ")
+    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndFieldIsAndStatusIsNot
+            (@Param("value") String value, @Param("department") Department department, @Param("field") Field field, @Param("status") Integer status, Pageable pageable);
 
-    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase
-            (String value1, String value2, Pageable pageable);
+    @Query("SELECT q FROM Question q WHERE (LOWER(q.title) LIKE %:value% OR LOWER(q.content) LIKE %:value%) " +
+            "AND q.field = :field AND q.status <> :status ")
+    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndFieldIsAndStatusIsNot
+            (@Param("value") String value, @Param("field") Field field, @Param("status") Integer status, Pageable pageable);
+
+    Page<Question> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndStatusIsNot
+            (String value1, String value2, Integer status, Pageable pageable);
+
+    Optional<Question> findByIdAndStatusIsNot(String id, Integer status);
+
+    Page<Question> findAllByStatusIsNot(Integer status, Pageable pageable);
+
+    Page<Question> findAllByDepartmentIsAndStatusIsNot(Department department, Integer status, Pageable pageable);
+    Page<Question> findAllByFieldIsAndDepartmentIsAndStatusIsNot
+            (Field field, Department department, Integer status, Pageable pageable);
 }

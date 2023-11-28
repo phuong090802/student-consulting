@@ -19,5 +19,5 @@ public class QuestionDetailsModel {
     private String title;
     private String content;
     private String date;
-    private List<Object> answers;
+    private AnswerModel answers;
 }

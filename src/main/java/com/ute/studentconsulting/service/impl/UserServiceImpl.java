@@ -13,11 +13,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+
+    @Override
+    public User findByResetPasswordTokenAndResetPasswordExpireAfter(String resetPasswordToken, Date current) {
+        return userRepository.findByResetPasswordTokenAndResetPasswordExpireAfter(resetPasswordToken, current)
+                .orElseThrow(() -> new NotFoundException
+                        ("Không tìm thấy người dùng để đặt lại mật khẩu",
+                                "Reset password token không hợp lệ", 10056));
+    }
 
     @Override
     @Transactional
@@ -29,7 +39,7 @@ public class UserServiceImpl implements UserService {
     public User findByPhone(String phone) {
         return userRepository.findByPhone(phone)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng",
-                        "Không tìm thấy người dùng với số điện thoại: " + phone,
+                        "Không tìm thấy người dùng với số điện thoại: %s".formatted(phone),
                         10006));
     }
 
@@ -47,7 +57,7 @@ public class UserServiceImpl implements UserService {
     public User findById(String id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng",
-                        "Không tìm thấy người dùng với id: " + id, 10007));
+                        "Không tìm thấy người dùng với id: %s".formatted(id), 10007));
     }
 
     @Override
@@ -114,7 +124,7 @@ public class UserServiceImpl implements UserService {
         return userRepository
                 .findByIdAndRoleIsNot(id, role)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng",
-                        "Không tìm thấy người dùng với id: " + id + " với role không phải là role: " + role.getName().name(),
+                        "Không tìm thấy người dùng với id: %s với role không phải là role: %s".formatted(id, role.getName().name()),
                         10008));
     }
 
@@ -145,7 +155,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByIdAndDepartmentIs(id, department)
                 .orElseThrow(() ->
                         new NotFoundException("Không tìm thấy người dùng",
-                                "Không tìm thấy người dùng với id: " + id + " ở phòng ban: " + department.getName(), 10009));
+                                "Không tìm thấy người dùng với id: %s ở phòng ban: %s".formatted(id, department.getName()), 10009));
     }
 
     @Override
@@ -155,33 +165,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIs
-            (String value, Department department, String id, boolean enabled, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNot
+            (String value, Department department, String id, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIs
-                        (value, department, id, enabled, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNot
+                        (value, department, id, pageable);
+    }
+
+    @Override
+    public User findByEmailAndEnabledIs(String email, Boolean enabled) {
+        return userRepository.findByEmailAndEnabledIs(email, enabled)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng",
+                        "Không tìm thấy người dùng với trạng thái hoạt động và email: %s".formatted(email),
+                        10055));
     }
 
     @Override
     public User findByIdAndEnabledIs(String id, boolean enabled) {
         return userRepository.findByIdAndEnabledIs(id, enabled)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy người dùng",
-                        "Không tìm thấy người dùng với trạng thái hoạt động và id: " + id,
+                        "Không tìm thấy người dùng với trạng thái hoạt động và id: %s".formatted(id),
                         10010));
     }
 
     @Override
-    public Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIs(Pageable pageable, Role role, boolean enabled) {
+    public Page<User> findAllByRoleIsAndDepartmentIsNull(Pageable pageable, Role role) {
         return userRepository
-                .findAllByRoleIsAndDepartmentIsNullAndEnabledIs(pageable, role, enabled);
+                .findAllByRoleIsAndDepartmentIsNull(pageable, role);
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIs
-            (String value, Role role, boolean enabled, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNull
+            (String value, Role role, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIs
-                        (value, role, enabled, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNull
+                        (value, role, pageable);
     }
 
     @Override
@@ -193,16 +211,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIs
-            (String value, Department department, boolean enabled, Pageable pageable) {
+    public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIs
+            (String value, Department department, Pageable pageable) {
         return userRepository
-                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIs
-                        (value, department, enabled, pageable);
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIs
+                        (value, department, pageable);
     }
 
     @Override
-    public Page<User> findAllByDepartmentIsAndEnabledIs(Pageable pageable, boolean enabled, Department department) {
-        return userRepository.findAllByDepartmentIsAndEnabledIs(pageable, enabled, department);
+    public List<User> findAllByIdIn(Collection<String> ids) {
+        return userRepository.findAllByIdIn(ids);
+    }
+
+    @Override
+    public Page<User> findAllByDepartmentIs(Pageable pageable, Department department) {
+        return userRepository.findAllByDepartmentIs(pageable, department);
     }
 
     @Override

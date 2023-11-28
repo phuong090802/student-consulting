@@ -7,6 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
     void save(User user);
@@ -112,18 +115,24 @@ public interface UserService {
 
     User findByDepartmentAndRole(Department department, Role role);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNotAndEnabledIs
-            (String value, Department department, String id, boolean enabled, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndIdIsNot
+            (String value, Department department, String id, Pageable pageable);
 
     User findByIdAndEnabledIs(String id, boolean enabled);
 
-    Page<User> findAllByRoleIsAndDepartmentIsNullAndEnabledIs(Pageable pageable, Role role, boolean enabled);
+    Page<User> findAllByRoleIsAndDepartmentIsNull(Pageable pageable, Role role);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNullAndEnabledIs
-            (String value, Role role, boolean enabled, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRoleIsAndDepartmentIsNull
+            (String value, Role role, Pageable pageable);
 
-    Page<User> findAllByDepartmentIsAndEnabledIs(Pageable pageable, boolean enabled, Department department);
+    Page<User> findAllByDepartmentIs(Pageable pageable, Department department);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIsAndEnabledIs
-            (String value, Department department, boolean enabled, Pageable pageable);
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseAndDepartmentIs
+            (String value, Department department, Pageable pageable);
+
+    List<User> findAllByIdIn(Collection<String> ids);
+
+    User findByEmailAndEnabledIs(String email, Boolean enabled);
+
+    User findByResetPasswordTokenAndResetPasswordExpireAfter(String resetPasswordToken, Date current);
 }

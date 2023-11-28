@@ -1,6 +1,7 @@
 package com.ute.studentconsulting.service;
 
 import com.ute.studentconsulting.entity.RefreshToken;
+import com.ute.studentconsulting.entity.User;
 
 public interface RefreshTokenService {
     RefreshToken save(RefreshToken refreshToken);
@@ -10,4 +11,5 @@ public interface RefreshTokenService {
     void deleteById(String id);
 
     void deleteByParent(RefreshToken parent);
+    void deleteByUser(User user);
 }
