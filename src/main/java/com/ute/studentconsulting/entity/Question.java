@@ -1,5 +1,6 @@
 package com.ute.studentconsulting.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,6 +40,7 @@ public class Question {
     @Column(name = "views")
     private Integer views;
 
+    @JsonIgnore
     @NonNull
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
@@ -47,6 +49,7 @@ public class Question {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @JsonIgnore
     @NonNull
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
@@ -55,6 +58,7 @@ public class Question {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    @JsonIgnore
     @NonNull
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
@@ -63,9 +67,11 @@ public class Question {
     @JoinColumn(name = "field_id")
     private Field field;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "question", cascade = CascadeType.ALL)
     private Answer answer;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "question", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH

@@ -229,6 +229,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> findAllByDepartmentIsAndRoleIsNot(Department department, Role role) {
+        return userRepository.findAllByDepartmentIsAndRoleIsNot(department, role);
+    }
+
+    @Override
     public Page<User> findAllRoleIsNotAndRoleIsAndOccupationNotInAndEnabledIs
             (Role role, Collection<String> occupations, boolean enabled, Pageable pageable) {
         return userRepository
@@ -308,10 +313,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIs
-            (String value, Pageable pageable, Role admin, Role role) {
+            (String value, Role admin,Role role, Pageable pageable) {
         return userRepository
                 .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIs
-                        (value, value, value, pageable, admin, role);
+                        (value, admin, role, pageable);
     }
 
     @Override

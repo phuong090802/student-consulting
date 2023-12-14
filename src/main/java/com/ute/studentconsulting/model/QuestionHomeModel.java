@@ -9,14 +9,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionDetailsModel {
-
-    private String title;
-    private String content;
-    private String date;
-    private int views;
-    private UserDetailsModel user;
+public class QuestionHomeModel {
+    private String userId;
+    private String name;
+    private String avatar;
     private String departmentName;
-    private AnswerDetailsModel answer;
-
+    private String questionId;
+    private String title;
+    private int status;
+    private String date;
 }

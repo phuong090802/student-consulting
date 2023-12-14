@@ -1,4 +1,4 @@
-package com.ute.studentconsulting.payload.request;
+package com.ute.studentconsulting.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateUserRequest {
-    private String name;
-    private String occupation;
+public class AnswerDetailsModel {
+    private String content;
+    private String date;
+    private UserDetailsModel user;
 }

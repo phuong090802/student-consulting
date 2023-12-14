@@ -1,5 +1,6 @@
 package com.ute.studentconsulting.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,7 @@ public class RefreshToken {
     @Column(name = "status")
     private Boolean status;
 
+    @JsonIgnore
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
@@ -33,9 +35,12 @@ public class RefreshToken {
     @JoinColumn(name = "parent")
     private RefreshToken parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+//    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private Set<RefreshToken> children;
 
+    @JsonIgnore
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
@@ -51,4 +56,13 @@ public class RefreshToken {
                 ", status=" + status +
                 '}';
     }
+
+//    @PreRemove
+//    private void preRemove() {
+//        if (parent != null) {
+//            parent.getChildren().remove(this);
+//            parent = null;
+//        }
+//    }
+
 }

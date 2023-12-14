@@ -45,8 +45,11 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Page<User> findAllByRoleIsNotAndRoleIsAndOccupationEqualsIgnoreCase(Pageable pageable, Role admin, Role role, String occupation);
 
+    @Query("SELECT u FROM User u WHERE (LOWER(u.name) LIKE %:value% OR LOWER(u.email) LIKE %:value% OR u.phone LIKE %:value%) " +
+            "AND u.role <> :admin " +
+            "AND u.role = :role ")
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIs
-            (String value1, String value2, String value3, Pageable pageable, Role admin, Role role);
+            (@Param("value") String value, @Param("admin") Role admin, @Param("role") Role role, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE (LOWER(u.name) LIKE %:value% OR LOWER(u.email) LIKE %:value% OR u.phone LIKE %:value%) " +
             "AND u.role <> :admin " +
@@ -167,4 +170,5 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByResetPasswordTokenAndResetPasswordExpireAfter
             (String resetPasswordToken, Date current);
+    List<User> findAllByDepartmentIsAndRoleIsNot(Department department, Role role);
 }

@@ -1,13 +1,10 @@
 package com.ute.studentconsulting.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ute.studentconsulting.entity.RoleName;
 import com.ute.studentconsulting.entity.User;
 import com.ute.studentconsulting.exception.UnauthorizedException;
 import com.ute.studentconsulting.model.AuthModel;
 import com.ute.studentconsulting.model.CurrentUserModel;
-import com.ute.studentconsulting.model.TokenModel;
 import com.ute.studentconsulting.payload.UserPayload;
 import com.ute.studentconsulting.payload.request.LoginRequest;
 import com.ute.studentconsulting.payload.response.ApiSuccessResponse;
@@ -33,8 +30,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 
 
@@ -49,7 +44,6 @@ public class AuthController {
     private final TokenUtils tokenUtils;
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
-    private final ObjectMapper objectMapper;
     private final UserUtils userUtils;
     private final AuthUtils authUtils;
 
@@ -60,7 +54,9 @@ public class AuthController {
 
     private ResponseEntity<?> handleGetCurrentUser() {
         var user = authUtils.getCurrentUser();
-        var response = new CurrentUserModel(user.getName(), user.getRole().getName().name(), user.getAvatar());
+        var occupation = user.getOccupation() != null ? user.getOccupation() : "";
+        var response = new CurrentUserModel(user.getName(), user.getEmail(), user.getPhone(),
+                user.getRole().getName().name(), occupation, user.getAvatar());
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(response));
     }
 
@@ -89,6 +85,7 @@ public class AuthController {
         if (StringUtils.hasText(tokenValue)) {
             var tokenAuth = refreshTokenService.findById(tokenValue);
             var parent = tokenAuth.getParent() != null ? tokenAuth.getParent() : tokenAuth;
+            refreshTokenService.deleteByParent(parent);
             refreshTokenService.deleteById(parent.getToken());
         }
         var response = tokenUtils.clearCookie();
@@ -100,55 +97,45 @@ public class AuthController {
     private ResponseEntity<?> handleRefreshToken(HttpServletRequest request) {
         var tokenValue = tokenUtils.getRefreshTokenByValue(request);
         if (!StringUtils.hasText(tokenValue)) {
-            return badRequest();
+            return forbidden();
         }
+
         var tokenAuth = refreshTokenService.findById(tokenValue);
-
-        if (tokenAuth != null) {
-            var parent = tokenAuth.getParent() != null ? tokenAuth.getParent() : tokenAuth;
-
-            if (tokenAuth.getStatus() && tokenAuth.getExpires().compareTo(new Date()) > 0) {
-                if (tokenAuth.getParent() == null) {
-                    tokenAuth.setStatus(false);
-                    refreshTokenService.save(tokenAuth);
-                }
-                refreshTokenService.deleteByParent(parent);
-                var nextToken = tokenUtils.generateRefreshToken(parent.getToken());
-                nextToken.setUser(parent.getUser());
-                nextToken.setParent(parent);
-
-                var savedToken = refreshTokenService.save(nextToken);
-                var accessToken = tokenUtils.generateToken(nextToken.getUser().getPhone());
-
-                var cookie = tokenUtils.setCookie(savedToken.getToken());
-                var response = new AuthModel(accessToken,
-                        nextToken.getUser().getName(),
-                        nextToken.getUser().getRole().getName().name(),
-                        nextToken.getUser().getAvatar());
-
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                        .body(new ApiSuccessResponse<>(response));
-            }
-            refreshTokenService.deleteById(parent.getToken());
-        } else {
-            var bytes = Base64.getUrlDecoder().decode(tokenValue);
-            var jsonValue = new String(bytes, StandardCharsets.UTF_8);
-            TokenModel tokenObj;
-            try {
-                tokenObj = objectMapper.readValue(jsonValue, TokenModel.class);
-                refreshTokenService.deleteById(tokenObj.getP());
-            } catch (JsonProcessingException ignored) {
-
-            }
-
+        if (tokenAuth == null) {
+            return forbidden();
         }
-        return badRequest();
+        var parent = tokenAuth.getParent() != null ? tokenAuth.getParent() : tokenAuth;
+        if (tokenAuth.getStatus() && tokenAuth.getExpires().compareTo(new Date()) > 0) {
+
+            var user = parent.getUser();
+            var nextToken = tokenUtils.generateRefreshToken();
+            nextToken.setUser(user);
+            nextToken.setParent(parent);
+
+            var savedToken = refreshTokenService.save(nextToken);
+            var accessToken = tokenUtils.generateToken(user.getPhone());
+
+            tokenAuth.setStatus(false);
+            refreshTokenService.save(tokenAuth);
+            var occupation = user.getOccupation() != null ? user.getOccupation() : "";
+
+            var response = new AuthModel(accessToken, user.getName(), user.getEmail(), user.getPhone(),
+                    user.getRole().getName().name(), occupation, user.getAvatar());
+
+            var cookie = tokenUtils.setCookie(savedToken.getToken());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(new ApiSuccessResponse<>(response));
+        }
+        refreshTokenService.deleteByParent(parent);
+        refreshTokenService.deleteById(parent.getToken());
+        return forbidden();
+
     }
 
-    private ResponseEntity<?> badRequest() {
+    private ResponseEntity<?> forbidden() {
         var cookie = tokenUtils.clearCookie();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new ErrorResponse(false,
                         "Refresh token không thành công", "Lỗi xảy ra khi refresh token", 10016));
@@ -169,8 +156,9 @@ public class AuthController {
         refreshToken.setUser(user);
         var savedToken = refreshTokenService.save(refreshToken);
         var cookie = tokenUtils.setCookie(savedToken.getToken());
-        var response = new AuthModel(token, user.getName(),
-                authority.get().getAuthority(), user.getAvatar());
+        var occupation = user.getOccupation() != null ? user.getOccupation() : "";
+        var response = new AuthModel(token, user.getName(), user.getEmail(), user.getPhone(),
+                authority.get().getAuthority(), occupation, user.getAvatar());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new ApiSuccessResponse<>(response));

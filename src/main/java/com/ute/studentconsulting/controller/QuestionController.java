@@ -1,9 +1,7 @@
 package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.Question;
-import com.ute.studentconsulting.model.AnswerModel;
-import com.ute.studentconsulting.model.PaginationModel;
-import com.ute.studentconsulting.model.QuestionDetailsModel;
+import com.ute.studentconsulting.model.*;
 import com.ute.studentconsulting.payload.response.ApiSuccessResponse;
 import com.ute.studentconsulting.payload.response.SuccessResponse;
 import com.ute.studentconsulting.service.DepartmentService;
@@ -32,6 +30,43 @@ public class QuestionController {
     private final DepartmentService departmentService;
     private final SortUtils sortUtils;
     private final UserService userService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getQuestion(@PathVariable("id") String id) {
+        return handleGetQuestion(id);
+    }
+
+    private ResponseEntity<?> handleGetQuestion(String id) {
+        var question = questionService.findByIdAndStatusIsNot(id, 2);
+        var simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        var user = question.getUser();
+        var answerDetails = getAnswerDetails(question, simpleDateFormat);
+
+        var questionDetails = new QuestionDetailsModel(
+                question.getTitle(),
+                question.getContent(),
+                simpleDateFormat.format(question.getDate()),
+                question.getViews(),
+                new UserDetailsModel(user.getName(), user.getAvatar()),
+                question.getDepartment().getName(),
+                answerDetails
+        );
+        return ResponseEntity.ok(new ApiSuccessResponse<>(questionDetails));
+    }
+
+    private AnswerDetailsModel getAnswerDetails(Question question, SimpleDateFormat simpleDateFormat) {
+        if (question.getStatus() == 1) {
+            var staff = userService.findById(question.getAnswer().getStaff().getId());
+            return new AnswerDetailsModel(
+                    question.getAnswer().getContent(),
+                    simpleDateFormat.format(question.getAnswer().getDate()),
+                    new UserDetailsModel(staff.getName(), staff.getAvatar())
+            );
+        }
+        return null;
+    }
+
 
     @PatchMapping("/{id}")
     public ResponseEntity<?> patchViewsQuestion(@PathVariable("id") String id) {
@@ -115,25 +150,16 @@ public class QuestionController {
                 .map(question -> {
 
                     var user = question.getUser();
-                    var answer = question.getAnswer();
-                    var answerModel = new AnswerModel();
-                    if (answer != null) {
-                        var staff = userService.findById(question.getAnswer().getStaff().getId());
-                        answerModel.setId(answer.getId());
-                        answerModel.setContent(answerModel.getContent());
-                        answerModel.setDate(simpleDateFormat.format(answer.getDate()));
-                        answerModel.setUserId(staff.getId());
-                        answerModel.setName(staff.getName());
-                        answerModel.setEmail(staff.getEmail());
-                        answerModel.setAvatar(staff.getAvatar());
-                    }
-                    return new QuestionDetailsModel(
+                    var department = question.getDepartment();
+
+                    return new QuestionHomeModel(
                             user.getId(),
                             user.getName(),
                             user.getAvatar(),
+                            department.getName(),
                             question.getId(), question.getTitle(),
-                            question.getContent(), simpleDateFormat.format(question.getDate()),
-                            answerModel
+                            question.getStatus(),
+                            simpleDateFormat.format(question.getDate())
                     );
                 }).toList();
         var response = new PaginationModel<>(

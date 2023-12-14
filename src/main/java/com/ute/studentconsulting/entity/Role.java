@@ -1,5 +1,6 @@
 package com.ute.studentconsulting.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleName name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "role", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH

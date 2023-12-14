@@ -1,5 +1,6 @@
 package com.ute.studentconsulting.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,7 @@ public class Message {
     @Column(name = "seen")
     private Boolean seen;
 
+    @JsonIgnore
     @NonNull
     @ManyToOne(cascade = {
             CascadeType.MERGE,
@@ -38,6 +40,7 @@ public class Message {
     @JoinColumn(name = "conversation_id")
     private Conversation conversation;
 
+    @JsonIgnore
     @NonNull
     @OneToOne(cascade = {
             CascadeType.MERGE,

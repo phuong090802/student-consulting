@@ -1,5 +1,6 @@
 package com.ute.studentconsulting.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,7 @@ public class Answer {
     @Column(name = "approved")
     private Boolean approved;
 
+    @JsonIgnore
     @NonNull
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
@@ -38,6 +40,7 @@ public class Answer {
     @JoinColumn(name = "user_id")
     private User staff;
 
+    @JsonIgnore
     @NonNull
     @OneToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,

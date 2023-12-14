@@ -45,7 +45,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         return departmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "Không tìm thấy khoa",
-                        "Không tìm thấy khoa với id: %s".formatted(id), 10001));
+                        "Không tìm thấy khoa với mã: %s".formatted(id), 10001));
     }
 
     @Override

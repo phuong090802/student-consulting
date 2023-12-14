@@ -14,6 +14,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
+    public void deleteById(String id) {
+        refreshTokenRepository.deleteById(id);
+    }
+
+    @Override
     @Transactional
     public void deleteByUser(User user) {
         refreshTokenRepository.deleteByUser(user);
@@ -35,12 +40,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public void deleteByParent(RefreshToken parent) {
         refreshTokenRepository.deleteByParent(parent);
-    }
-
-    @Override
-    @Transactional
-    public void deleteById(String id) {
-        refreshTokenRepository.deleteById(id);
     }
 
 }

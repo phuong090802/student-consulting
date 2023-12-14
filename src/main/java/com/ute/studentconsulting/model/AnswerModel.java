@@ -13,9 +13,4 @@ public class AnswerModel {
     private String id;
     private String content;
     private String date;
-    private String userId;
-    private String name;
-    private String email;
-    private String avatar;
-
 }

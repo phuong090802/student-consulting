@@ -8,6 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 public class CurrentUserModel {
     private String name;
+    private String email;
+    private String phone;
     private String role;
+    private String occupation;
     private String avatar;
 }

@@ -6,6 +6,7 @@ import com.ute.studentconsulting.repository.MessageRepository;
 import com.ute.studentconsulting.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
 
     @Override
+    @Transactional
     public Message save(Message message) {
         return messageRepository.save(message);
     }

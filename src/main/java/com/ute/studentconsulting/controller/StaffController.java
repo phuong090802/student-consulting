@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/staff")
@@ -110,9 +111,16 @@ public class StaffController {
     private ResponseEntity<?> handleAnswerQuestion(AnswerRequest request) {
         var staff = authUtils.getCurrentUser();
         var question = questionService.findById(request.getQuestionId());
+        if(question.getAnswer() != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new SuccessResponse("Câu hỏi đã được trả lời"));
+        }
         var answer = new Answer(request.getContent(), new Date(), false, staff, question);
+        if (staff.getRole().getName().equals(RoleName.ROLE_DEPARTMENT_HEAD)) {
+            answer.setApproved(true);
+        }
         answerService.save(answer);
-        question.setStatus(1);
+        question.setStatus(0);
         questionService.save(question);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new SuccessResponse("Trả lời câu hỏi thành công"));
@@ -171,8 +179,16 @@ public class StaffController {
 
     private ResponseEntity<?> handleGetFieldsInMyDepartment() {
         var staff = authUtils.getCurrentUser();
-        var ids = staff.getFields().stream().map(Field::getId).toList();
+        var ids = getIds(staff);
         var fields = fieldService.findAllByIdInAndStatusIs(ids, true);
         return ResponseEntity.ok(new ApiSuccessResponse<>(fields));
+    }
+
+    private List<String> getIds(User staff) {
+        if (staff.getRole().getName().equals(RoleName.ROLE_DEPARTMENT_HEAD)) {
+            var department = authUtils.getCurrentUser().getDepartment();
+            return department.getFields().stream().map(Field::getId).toList();
+        }
+        return staff.getFields().stream().map(Field::getId).toList();
     }
 }

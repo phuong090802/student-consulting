@@ -1,10 +1,6 @@
 package com.ute.studentconsulting.security.token;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ute.studentconsulting.entity.RefreshToken;
-import com.ute.studentconsulting.exception.InternalServerErrorException;
-import com.ute.studentconsulting.model.TokenModel;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -14,16 +10,14 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.SameSiteCookies;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
@@ -42,8 +36,6 @@ public class TokenUtils {
 
     @Value("${student-consulting.app.cookie-name}")
     private String cookieName;
-
-    private final ObjectMapper objectMapper;
 
     private SecretKey key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
@@ -108,23 +100,6 @@ public class TokenUtils {
                 true);
     }
 
-    public RefreshToken generateRefreshToken(String parent)  {
-        var secureRandom = new SecureRandom();
-        var tokenObj = new TokenModel(String.valueOf(secureRandom.nextLong()), parent);
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(tokenObj);
-        } catch (JsonProcessingException e) {
-            throw new InternalServerErrorException("Lỗi tạo refresh token", e.getMessage(), 10012);
-        }
-        var bytes = json.getBytes(StandardCharsets.UTF_8);
-        var token = Base64.getUrlEncoder().encodeToString(bytes);
-        return new RefreshToken(
-                token,
-                new Date(new Date().getTime() + refreshTokenExpiresMs),
-                true);
-    }
-
     public ResponseCookie clearCookie() {
         return ResponseCookie
                 .from(cookieName, "")
@@ -132,7 +107,7 @@ public class TokenUtils {
                 .httpOnly(true)
                 .path("/api/auth")
                 .maxAge(0)
-                .sameSite("None")
+                .sameSite(SameSiteCookies.NONE.name())
                 .build();
     }
 }

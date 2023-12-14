@@ -42,6 +42,9 @@ public class WebSecurityConfig {
     @Value("${frontend.deployed.url}")
     private String deployedFrontendUrl;
 
+    @Value("${frontend.testing.url}")
+    private String testingFrontendUrl;
+
     @Bean
     public AuthTokenFilter authenticationAccessTokenFilter() {
         return new AuthTokenFilter();
@@ -70,7 +73,7 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of(localFrontendUrl, deployedFrontendUrl));
+        configuration.setAllowedOrigins(List.of(localFrontendUrl, deployedFrontendUrl, testingFrontendUrl));
         configuration.setAllowedMethods(List.of(
                 HttpMethod.GET.name(),
                 HttpMethod.POST.name(),
@@ -103,7 +106,8 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/api/department-head/**").hasRole("DEPARTMENT_HEAD")
                                 .requestMatchers("/api/staff/**").hasAnyRole("COUNSELLOR", "DEPARTMENT_HEAD")
-                                .requestMatchers("/api/conversations/**").hasAnyRole("USER","COUNSELLOR", "DEPARTMENT_HEAD")
+                                .requestMatchers("/api/feedbacks/**").hasAnyRole("COUNSELLOR")
+                                .requestMatchers("/api/conversations/**").hasAnyRole("USER", "COUNSELLOR", "DEPARTMENT_HEAD")
                                 .anyRequest().permitAll()
                 )
                 .authenticationProvider(authenticationProvider())

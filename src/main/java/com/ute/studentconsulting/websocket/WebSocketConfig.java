@@ -23,6 +23,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Value("${frontend.deployed.url}")
     private String deployedFrontendUrl;
 
+    @Value("${frontend.testing.url}")
+    private String testingFrontendUrl;
+
     @Bean
     public AuthSocketInterceptor authenticationSocketInterceptor() {
         return new AuthSocketInterceptor();
@@ -32,7 +35,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/messages")
-                .setAllowedOrigins(localFrontendUrl, deployedFrontendUrl);
+                .setAllowedOrigins(localFrontendUrl, deployedFrontendUrl, testingFrontendUrl);
     }
 
     @Override

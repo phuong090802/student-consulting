@@ -33,6 +33,7 @@ public class Field {
     })
     private Set<Question> questions;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "field", cascade = CascadeType.ALL)
     private Set<FAQ> faqs;
 

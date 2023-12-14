@@ -7,6 +7,7 @@ import com.ute.studentconsulting.repository.ConversationRepository;
 import com.ute.studentconsulting.service.ConversationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,10 +21,11 @@ public class ConversationServiceImpl implements ConversationService {
         return conversationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "Không tìm thấy cuộc đối thoại",
-                        "Không tìm thấy cuộc đối thoại với id: %s".formatted(id), 10013));
+                        "Không tìm thấy cuộc đối thoại với mã: %s".formatted(id), 10013));
     }
 
     @Override
+    @Transactional
     public Conversation save(Conversation conversation) {
         return conversationRepository.save(conversation);
     }

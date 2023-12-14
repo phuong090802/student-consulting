@@ -8,8 +8,8 @@ public interface RefreshTokenService {
 
     RefreshToken findById(String token);
 
-    void deleteById(String id);
-
     void deleteByParent(RefreshToken parent);
+
     void deleteByUser(User user);
+    void deleteById(String id);
 }

@@ -22,38 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UploadFileController {
     private final FireBaseService fireBaseService;
 
-    @PostMapping("/avatar")
-    @PreAuthorize("hasAnyRole('USER', 'COUNSELLOR', 'DEPARTMENT_HEAD', 'SUPERVISOR', 'ADMIN')")
-    public ResponseEntity<?> uploadAvatar(@RequestParam("avatar") MultipartFile file) {
-        if (file.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("Không tìm thấy file",
-                            "Vui lòng kiểm tra lại file", 10071));
-        }
-        if (!isImageFile(file)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse("Định dạng file không hợp lệ",
-                            "Vui lòng kiểm tra lại định dang file", 10072));
-        }
-        var folderName = "avatars/";
-        var blobId = fireBaseService.uploadFile(file, folderName);
-        var url = fireBaseService.downloadFile(blobId);
-        return ResponseEntity.ok(new ApiSuccessResponse<>(new FileModel(blobId, url)));
-    }
-
-    private boolean isImageFile(MultipartFile file) {
-        var fileName = file.getOriginalFilename();
-        if (fileName != null &&
-                (fileName.toLowerCase().endsWith(".jpg")
-                        || fileName.toLowerCase().endsWith(".jpeg")
-                        || fileName.toLowerCase().endsWith(".png"))) {
-            return file.getContentType() != null &&
-                    (file.getContentType().startsWith("image/jpeg")
-                            || file.getContentType().startsWith("image/png"));
-        }
-        return false;
-    }
-
     @PostMapping("/news")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {

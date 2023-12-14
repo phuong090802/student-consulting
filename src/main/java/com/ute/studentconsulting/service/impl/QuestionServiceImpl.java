@@ -1,5 +1,6 @@
 package com.ute.studentconsulting.service.impl;
 
+import com.ute.studentconsulting.entity.Answer;
 import com.ute.studentconsulting.entity.Department;
 import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.entity.Question;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,13 @@ public class QuestionServiceImpl implements QuestionService {
         return questionRepository
                 .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseAndDepartmentIsAndStatusIsNot
                         (value, department, status, pageable);
+    }
+
+    @Override
+    public Question findByIdAndStatusIs(String id, Integer status) {
+        return questionRepository.findByIdAndStatusIs(id, status)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy câu hỏi",
+                        "Không tìm thấy câu hỏi với mã: %s và trạng thái là: %s".formatted(id, status), 10089));
     }
 
     @Override
@@ -43,14 +54,14 @@ public class QuestionServiceImpl implements QuestionService {
     public Question findById(String id) {
         return questionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy câu hỏi",
-                        "Không tìm thấy câu hỏi với id: %s".formatted(id), 10004));
+                        "Không tìm thấy câu hỏi với mã: %s".formatted(id), 10004));
     }
 
     @Override
     public Question findByIdAndStatusIsNot(String id, int status) {
         return questionRepository.findByIdAndStatusIsNot(id, status)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy câu hỏi",
-                        "Không tìm thấy câu hỏi với id: %s và trạng thái không phải là: %s".formatted(id, status), 10004));
+                        "Không tìm thấy câu hỏi với mã: %s và trạng thái không phải là: %s".formatted(id, status), 10004));
     }
 
     @Override
@@ -64,9 +75,20 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionRepository questionRepository;
 
     @Override
+    public Page<Question> findAllByAnswerInAndStatusIs(Collection<Answer> answers, Integer status, Pageable pageable) {
+        return questionRepository.findAllByAnswerInAndStatusIs(answers, status, pageable);
+    }
+
+    @Override
     @Transactional
     public void save(Question question) {
         questionRepository.save(question);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(String id) {
+        questionRepository.deleteById(id);
     }
 
     @Override
@@ -104,8 +126,13 @@ public class QuestionServiceImpl implements QuestionService {
     public Page<Question> findAllByFieldIsAndDepartmentIsAndStatusIsNot
             (Field field, Department department, Integer status, Pageable pageable) {
         return questionRepository
-                . findAllByFieldIsAndDepartmentIsAndStatusIsNot
+                .findAllByFieldIsAndDepartmentIsAndStatusIsNot
                         (field, department, status, pageable);
+    }
+
+    @Override
+    public List<Question> findAllByDateBefore(Date date) {
+        return questionRepository.findAllByDateBefore(date);
     }
 
     @Override

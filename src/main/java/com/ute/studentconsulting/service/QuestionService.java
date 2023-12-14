@@ -1,5 +1,6 @@
 package com.ute.studentconsulting.service;
 
+import com.ute.studentconsulting.entity.Answer;
 import com.ute.studentconsulting.entity.Department;
 import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.entity.Question;
@@ -7,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 public interface QuestionService {
     void save(Question question);
@@ -43,5 +46,13 @@ public interface QuestionService {
 
     Page<Question> findAllByFieldIsAndDepartmentIsAndStatusIsNot
             (Field field, Department department, Integer status, Pageable pageable);
+
+    List<Question> findAllByDateBefore(Date date);
+
+    void deleteById(String id);
+
+    Page<Question> findAllByAnswerInAndStatusIs(Collection<Answer> answers, Integer status, Pageable pageable);
+    Question findByIdAndStatusIs(String id, Integer status);
+
 
 }

@@ -12,6 +12,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartException;
@@ -86,5 +87,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handleMultipartException(MultipartException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new ErrorResponse("Đã có lỗi xảy ra khi upload file", e.getMessage(), 10085));
+    }
+
+    @RequestMapping("/**")
+    public ResponseEntity<?> handleDefaultMapping() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ErrorResponse("Không tìm thấy tài nguyên", "Đường dẫn không hợp lệ", 10086));
     }
 }

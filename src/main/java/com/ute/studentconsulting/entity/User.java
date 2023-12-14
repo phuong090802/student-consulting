@@ -58,6 +58,7 @@ public class User {
     @Column(name = "reset_password_expire")
     private Date resetPasswordExpire;
 
+    @JsonIgnore
     @NonNull
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
@@ -66,6 +67,7 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @JsonIgnore
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
@@ -73,6 +75,7 @@ public class User {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    @JsonIgnore
     @ManyToMany(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
@@ -82,33 +85,45 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "field_id"))
     private Set<Field> fields;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL)
     private Set<RefreshToken> refreshTokens;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
     private Set<Question> questions;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "staff", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
     private Set<Answer> answers;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "staff", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
     private Set<Conversation> staffConversations;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
     private Set<Conversation> userConversations;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH
+    })
+    private Set<Feedback> feedbacks;
 
     @Override
     public String toString() {

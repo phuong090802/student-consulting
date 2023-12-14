@@ -68,6 +68,7 @@ public class Department {
     })
     private Set<ForwardQuestion> receiveQuestions;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "department",
             cascade = CascadeType.ALL)
     private Set<FAQ> faqs;
@@ -81,4 +82,5 @@ public class Department {
                 ", status=" + status +
                 '}';
     }
+
 }

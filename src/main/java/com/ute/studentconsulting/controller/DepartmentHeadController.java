@@ -2,13 +2,12 @@ package com.ute.studentconsulting.controller;
 
 import com.ute.studentconsulting.entity.*;
 import com.ute.studentconsulting.exception.BadRequestException;
-import com.ute.studentconsulting.model.AnswerModel;
-import com.ute.studentconsulting.model.CounsellorModel;
-import com.ute.studentconsulting.model.PaginationModel;
+import com.ute.studentconsulting.model.*;
 import com.ute.studentconsulting.payload.FAQPayload;
 import com.ute.studentconsulting.payload.UserPayload;
 import com.ute.studentconsulting.payload.request.FieldsRequest;
 import com.ute.studentconsulting.payload.response.ApiSuccessResponse;
+import com.ute.studentconsulting.payload.response.ErrorResponse;
 import com.ute.studentconsulting.payload.response.SuccessResponse;
 import com.ute.studentconsulting.service.*;
 import com.ute.studentconsulting.util.*;
@@ -25,9 +24,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/department-head")
@@ -47,6 +44,46 @@ public class DepartmentHeadController {
     private final FAQService faqService;
     private final AnswerService answerService;
     private final FAQUtils faqUtils;
+    private final FeedbackService feedbackService;
+
+    @DeleteMapping("/answers/questions/{id}")
+    public ResponseEntity<?> deleteAnswer(@PathVariable("id") String id, @RequestBody FeedbackModel request) {
+        return handleDeleteAnswer(id, request);
+    }
+
+    private ResponseEntity<?> handleDeleteAnswer(String id, FeedbackModel request) {
+        var question = questionService.findByIdAndStatusIs(id, 0);
+        var user = userService.findById(question.getAnswer().getStaff().getId());
+        var content = request.getContent() != null ? request.getContent() : "Câu trả lời của bạn đã bị từ chối";
+        var feedback = new Feedback(question.getTitle(), content, new Date(), user, question);
+        feedbackService.save(feedback);
+        question.setAnswer(null);
+        questionService.save(question);
+        answerService.deleteByQuestion(question);
+        return ResponseEntity.ok(new SuccessResponse("Xóa câu trả lời thành công"));
+    }
+
+    @GetMapping("/answers/questions/{id}")
+    public ResponseEntity<?> deleteGetAnswer(@PathVariable("id") String id) {
+        return handleGetAnswer(id);
+    }
+
+    private ResponseEntity<?> handleGetAnswer(String id) {
+        var question = questionService.findByIdAndStatusIs(id, 0);
+        var answer = question.getAnswer();
+        if (answer.getApproved()) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(
+                    new ErrorResponse("Câu trả lời đã được duyệt",
+                            "Câu trả lời cho câu hỏi với mã: %s đã được duyêt".formatted(id), 10090));
+        }
+        var field = fieldService.findById(question.getField().getId());
+        var counsellor = userService.findById(answer.getStaff().getId());
+        var simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        var response = new AnswerApproveModel(question.getTitle(), question.getContent(), field.getName(),
+                new AnswerModel(answer.getId(), answer.getContent(), simpleDateFormat.format(answer.getDate())),
+                new StaffModel(counsellor.getId(), counsellor.getName(), counsellor.getEmail(), counsellor.getAvatar()));
+        return ResponseEntity.ok(new ApiSuccessResponse<>(response));
+    }
 
     @GetMapping("/faqs")
     private ResponseEntity<?> getAllFAQ(
@@ -90,25 +127,30 @@ public class DepartmentHeadController {
 
 
     @GetMapping("/answers")
-    private ResponseEntity<?> getAnswers(
+    private ResponseEntity<?> getQuestionForApprove(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "3") int size,
             @RequestParam(defaultValue = "date, asc", name = "sort") String[] sort) {
-        return handleGetAnswers(page, size, sort);
+        return handleGetQuestionForApprove(page, size, sort);
     }
 
-    private ResponseEntity<?> handleGetAnswers(int page, int size, String[] sort) {
+    private ResponseEntity<?> handleGetQuestionForApprove(int page, int size, String[] sort) {
         var orders = sortUtils.sortOrders(sort);
         var pageable = PageRequest.of(page, size, Sort.by(orders));
-        var answerPage = answerService.findAllByApprovedIs(false, pageable);
+        var user = authUtils.getCurrentUser();
+        var users = userService.findAllByDepartmentIsAndRoleIsNot(user.getDepartment(), user.getRole());
+        var answers = answerService.findAllByStaffInAndApprovedIs(users, false);
+        var questionPage = questionService.findAllByAnswerInAndStatusIs(answers, 0, pageable);
         var simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        var answers = answerPage.map(answer -> new AnswerModel(
-                answer.getId(), answer.getContent(), simpleDateFormat.format(answer.getDate()),
-                answer.getStaff().getId(), answer.getStaff().getName(), answer.getStaff().getEmail(), answer.getStaff().getAvatar()
-        )).toList();
+        var questions = questionPage.map(question -> {
+            var field = fieldService.findById(question.getField().getId());
+            return new QuestionItemModel(
+                    question.getId(), question.getTitle(), simpleDateFormat.format(question.getDate()), field.getName()
+            );
+        }).toList();
         var response = new PaginationModel<>(
-                answers, answerPage.getNumber(),
-                answerPage.getTotalPages());
+                questions, questionPage.getNumber(),
+                questionPage.getTotalPages());
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
@@ -119,6 +161,9 @@ public class DepartmentHeadController {
 
     private ResponseEntity<?> handleUpdateApproveAnswer(String id) {
         var answer = answerService.findById(id);
+        var question = answer.getQuestion();
+        question.setStatus(1);
+        questionService.save(question);
         answer.setApproved(true);
         answerService.save(answer);
         return ResponseEntity.ok(new SuccessResponse("Duyệt câu trả lời thành công"));
@@ -284,6 +329,7 @@ public class DepartmentHeadController {
     private ResponseEntity<?> handleGetCounsellorInMyDepartment(String id) {
         var department = authUtils.getCurrentUser().getDepartment();
         var counsellor = userService.findByIdAndDepartmentIs(id, department);
+
         var ids = counsellor.getFields().stream().map(Field::getId).toList();
         var fields = fieldService.findAllByIdIn(ids);
         var response = new CounsellorModel(
@@ -343,7 +389,7 @@ public class DepartmentHeadController {
     private ResponseEntity<?> handlePatchAccessibilityUser(String id) {
         var departmentHead = authUtils.getCurrentUser();
         var user = userService.findById(id);
-        if (!user.getDepartment().equals(departmentHead.getDepartment())
+        if (!Objects.equals(user.getDepartment(), departmentHead.getDepartment())
                 || !user.getRole().getName().equals(RoleName.ROLE_COUNSELLOR)) {
             throw new BadRequestException("Lỗi vô hiệu hóa tài khoản không hợp lệ",
                     "Người dùng không nằm trong phòng ban hoặc không phải là tư vấn viên", 10035);

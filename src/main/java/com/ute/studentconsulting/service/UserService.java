@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
     void save(User user);
@@ -48,8 +47,7 @@ public interface UserService {
             (Pageable pageable, Role admin, Role role, String occupation);
 
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIs
-            (String value, Pageable pageable, Role admin, Role role);
-
+            (String value, Role admin,Role role, Pageable pageable);
     Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotIn
             (String value, Role admin, Collection<String> occupations, Role role, Pageable pageable);
 
@@ -135,4 +133,6 @@ public interface UserService {
     User findByEmailAndEnabledIs(String email, Boolean enabled);
 
     User findByResetPasswordTokenAndResetPasswordExpireAfter(String resetPasswordToken, Date current);
+
+    List<User> findAllByDepartmentIsAndRoleIsNot(Department department, Role role);
 }

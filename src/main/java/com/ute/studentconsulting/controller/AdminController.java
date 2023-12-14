@@ -364,7 +364,7 @@ public class AdminController {
         return switch (occupation) {
             case "all" -> userService
                     .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIs
-                            (value, pageable, admin, role);
+                            (value, admin, role, pageable);
             case "others" -> userService
                     .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPhoneContainingAndRoleIsNotAndRoleIsAndOccupationNotIn
                             (value, admin, occupations, role, pageable);
@@ -553,8 +553,9 @@ public class AdminController {
         var pageable = PageRequest.of(page, size, Sort.by(orders));
         var admin = roleService.findByName(RoleName.ROLE_ADMIN);
         var occupations = List.of("Sinh Viên", "Phụ Huynh", "Học Sinh", "Cựu Sinh Viên");
+//        System.out.println(role);
         var roleObj = getRoleByName(role);
-
+        System.out.println(roleObj);
         var userPage = switch (status) {
             case "enabled" -> getUserStatusIsEnabled(roleObj, value, occupation, pageable, admin, occupations);
             case "disabled" -> getUserStatusIsDisabled(roleObj, value, occupation, pageable, admin, occupations);

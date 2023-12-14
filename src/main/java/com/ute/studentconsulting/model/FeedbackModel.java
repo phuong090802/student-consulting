@@ -9,14 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionDetailsModel {
-
+public class FeedbackModel {
+    private String id;
     private String title;
     private String content;
     private String date;
-    private int views;
-    private UserDetailsModel user;
-    private String departmentName;
-    private AnswerDetailsModel answer;
-
 }

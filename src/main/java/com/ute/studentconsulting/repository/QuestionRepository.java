@@ -1,5 +1,6 @@
 package com.ute.studentconsulting.repository;
 
+import com.ute.studentconsulting.entity.Answer;
 import com.ute.studentconsulting.entity.Department;
 import com.ute.studentconsulting.entity.Field;
 import com.ute.studentconsulting.entity.Question;
@@ -10,6 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, String> {
@@ -21,8 +24,6 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     Boolean existsByStatusIsAndFieldIdIn(Integer status, Collection<String> ids);
 
     Boolean existsByStatusIsAndFieldIs(Integer status, Field field);
-
-    Page<Question> findAllByDepartmentIsAndFieldIsAndStatusIsNot(Department department, Field field, Integer status, Pageable pageable);
 
     Page<Question> findAllByFieldIsAndStatusIsNot(Field field, Integer status, Pageable pageable);
 
@@ -51,4 +52,9 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     Page<Question> findAllByDepartmentIsAndStatusIsNot(Department department, Integer status, Pageable pageable);
     Page<Question> findAllByFieldIsAndDepartmentIsAndStatusIsNot
             (Field field, Department department, Integer status, Pageable pageable);
+    List<Question> findAllByDateBefore(Date date);
+    Page<Question> findAllByAnswerInAndStatusIs(Collection<Answer> answers, Integer status, Pageable pageable);
+
+    Optional<Question> findByIdAndStatusIs(String id, Integer status);
+
 }

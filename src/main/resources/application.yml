@@ -3,12 +3,7 @@ spring:
     url: jdbc:mysql://student-consulting-student-consulting.aivencloud.com:12130/student-consulting?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
     username: avnadmin
     password: AVNS_KGK3QJZU7kwZkceD4ks
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-        #format_sql: true
-        #show_sql: true
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -34,5 +29,8 @@ frontend:
   local:
     url: http://localhost:5173
   deployed:
-    url: https://tvsv-one.vercel.app
+    url: https://hcmute-tvsv.vercel.app/
+  testing:
+    url: https://tvsv-kiem-thu.vercel.app/
+
 
